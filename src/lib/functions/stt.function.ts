@@ -52,7 +52,14 @@ export async function fetchSTT(params: STTParams): Promise<string> {
   let warnings: string[] = [];
 
   try {
-    const { provider, selectedProvider, audio } = params;
+    const { selectedProvider, audio } = params;
+
+    // Default to OpenAI Whisper if no provider is passed
+    let provider = params.provider;
+    if (!provider) {
+      const { SPEECH_TO_TEXT_PROVIDERS } = await import("@/config/stt.constants");
+      provider = SPEECH_TO_TEXT_PROVIDERS.find(p => p.id === "openai-whisper");
+    }
 
     // Check if we should use Pluely API instead
     const usePluelyAPI = await shouldUsePluelyAPI();
@@ -60,7 +67,7 @@ export async function fetchSTT(params: STTParams): Promise<string> {
       return await fetchPluelySTT(audio);
     }
 
-    if (!provider) throw new Error("Provider not provided");
+    if (!provider) throw new Error("Speech-to-Text Provider configuration missing");
     if (!selectedProvider) throw new Error("Selected provider not provided");
     if (!audio) throw new Error("Audio file is required");
 
@@ -69,8 +76,7 @@ export async function fetchSTT(params: STTParams): Promise<string> {
       curlJson = curl2Json(provider.curl);
     } catch (error) {
       throw new Error(
-        `Failed to parse curl: ${
-          error instanceof Error ? error.message : "Unknown error"
+        `Failed to parse curl: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
     }
@@ -84,15 +90,25 @@ export async function fetchSTT(params: STTParams): Promise<string> {
     //   warnings.push("Audio exceeds 10MB limit");
     // }
 
-    // Build variable map
-    const allVariables = {
-      ...Object.fromEntries(
-        Object.entries(selectedProvider.variables).map(([key, value]) => [
-          key.toUpperCase(),
-          value,
-        ])
-      ),
+    // Get backend env fallbacks
+    const envConfig = (await invoke("get_env_config").catch(() => ({}))) as any;
+
+    // Build the set of variables to use, prioritizing user input over backend fallbacks
+    const uiVariables = Object.fromEntries(
+      Object.entries(selectedProvider.variables || {}).map(([k, v]) => [
+        k.toUpperCase(),
+        v,
+      ])
+    );
+
+    const mergedVariables: Record<string, string> = {
+      ...uiVariables,
+      // If UI has an empty/placeholder key, fall back to .env
+      API_KEY: (uiVariables.API_KEY || envConfig.api_access_key || "").trim(),
+      MODEL: (uiVariables.MODEL === "openai-whisper" ? "whisper-1" : (uiVariables.MODEL || "whisper-1")).trim(),
     };
+
+    const allVariables = mergedVariables;
 
     // Prepare request
     let url = deepVariableReplacer(curlJson.url || "", allVariables);
@@ -203,7 +219,7 @@ export async function fetchSTT(params: STTParams): Promise<string> {
       let errText = "";
       try {
         errText = await response.text();
-      } catch {}
+      } catch { }
       let errMsg: string;
       try {
         const errObj = JSON.parse(errText);

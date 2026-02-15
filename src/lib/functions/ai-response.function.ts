@@ -175,7 +175,6 @@ export async function* fetchAIResponse(params: {
 }): AsyncIterable<string> {
   try {
     const {
-      provider,
       selectedProvider,
       systemPrompt,
       history = [],
@@ -183,7 +182,6 @@ export async function* fetchAIResponse(params: {
       imagesBase64 = [],
       signal,
     } = params;
-
     // Check if already aborted
     if (signal?.aborted) {
       return;
@@ -203,8 +201,16 @@ export async function* fetchAIResponse(params: {
       });
       return;
     }
+
+    // Default to OpenAI if no provider is passed
+    let provider = params.provider;
     if (!provider) {
-      throw new Error(`Provider not provided`);
+      const { AI_PROVIDERS } = await import("@/config");
+      provider = AI_PROVIDERS.find(p => p.id === "openai");
+    }
+
+    if (!provider) {
+      throw new Error(`AI Provider configuration missing`);
     }
     if (!selectedProvider) {
       throw new Error(`Selected provider not provided`);
@@ -215,20 +221,40 @@ export async function* fetchAIResponse(params: {
       curlJson = curl2Json(provider.curl);
     } catch (error) {
       throw new Error(
-        `Failed to parse curl: ${
-          error instanceof Error ? error.message : "Unknown error"
+        `Failed to parse curl: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
     }
 
     const extractedVariables = extractVariables(provider.curl);
-    const requiredVars = extractedVariables.filter(
-      ({ key }) => key !== "SYSTEM_PROMPT" && key !== "TEXT" && key !== "IMAGE"
+
+    // Get backend env fallbacks
+    const envConfig = (await invoke("get_env_config").catch(() => ({}))) as any;
+
+    // Build the set of variables to use, prioritizing user input over backend fallbacks
+    const uiVariables = Object.fromEntries(
+      Object.entries(selectedProvider.variables || {}).map(([k, v]) => [
+        k.toUpperCase(),
+        v,
+      ])
     );
+
+    const mergedVariables: Record<string, string> = {
+      ...uiVariables,
+      // If UI has an empty/placeholder key, fall back to .env
+      API_KEY: (uiVariables.API_KEY || envConfig.api_access_key || "").trim(),
+      MODEL: (uiVariables.MODEL || "gpt-4o").trim(),
+    };
+
+    const requiredVars = extractedVariables.filter(
+      ({ key }) => !["SYSTEM_PROMPT", "TEXT", "IMAGE", "AUDIO"].includes(key)
+    );
+
     for (const { key } of requiredVars) {
+      const upperKey = key.toUpperCase();
       if (
-        !selectedProvider.variables?.[key] ||
-        selectedProvider.variables[key].trim() === ""
+        !mergedVariables[upperKey] ||
+        mergedVariables[upperKey].trim() === ""
       ) {
         throw new Error(
           `Missing required variable: ${key}. Please configure it in settings.`
@@ -263,12 +289,7 @@ export async function* fetchAIResponse(params: {
     }
 
     const allVariables = {
-      ...Object.fromEntries(
-        Object.entries(selectedProvider.variables).map(([key, value]) => [
-          key.toUpperCase(),
-          value,
-        ])
-      ),
+      ...mergedVariables,
       SYSTEM_PROMPT: enhancedSystemPrompt || "",
     };
 
@@ -291,7 +312,15 @@ export async function* fetchAIResponse(params: {
       }
     }
 
-    const fetchFunction = url?.includes("http") ? fetch : tauriFetch;
+    const fetchFunction = tauriFetch;
+
+    // Debug logging for local development
+    console.debug(`API Request: ${curlJson.method || "POST"} ${url}`);
+    const maskedHeaders = { ...headers };
+    if (maskedHeaders["Authorization"]) {
+      maskedHeaders["Authorization"] = maskedHeaders["Authorization"].substring(0, 15) + "...";
+    }
+    console.debug("Request Headers:", maskedHeaders);
 
     let response;
     try {
@@ -309,9 +338,8 @@ export async function* fetchAIResponse(params: {
       ) {
         return; // Silently return on abort
       }
-      yield `Network error during API request: ${
-        fetchError instanceof Error ? fetchError.message : "Unknown error"
-      }`;
+      yield `Network error during API request: ${fetchError instanceof Error ? fetchError.message : "Unknown error"
+        }`;
       return;
     }
 
@@ -319,10 +347,9 @@ export async function* fetchAIResponse(params: {
       let errorText = "";
       try {
         errorText = await response.text();
-      } catch {}
-      yield `API request failed: ${response.status} ${response.statusText}${
-        errorText ? ` - ${errorText}` : ""
-      }`;
+      } catch { }
+      yield `API request failed: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ""
+        }`;
       return;
     }
 
@@ -331,9 +358,8 @@ export async function* fetchAIResponse(params: {
       try {
         json = await response.json();
       } catch (parseError) {
-        yield `Failed to parse non-streaming response: ${
-          parseError instanceof Error ? parseError.message : "Unknown error"
-        }`;
+        yield `Failed to parse non-streaming response: ${parseError instanceof Error ? parseError.message : "Unknown error"
+          }`;
         return;
       }
       const content =
@@ -369,9 +395,8 @@ export async function* fetchAIResponse(params: {
         ) {
           return; // Silently return on abort
         }
-        yield `Error reading stream: ${
-          readError instanceof Error ? readError.message : "Unknown error"
-        }`;
+        yield `Error reading stream: ${readError instanceof Error ? readError.message : "Unknown error"
+          }`;
         return;
       }
       const { done, value } = readResult;
@@ -408,8 +433,7 @@ export async function* fetchAIResponse(params: {
     }
   } catch (error) {
     throw new Error(
-      `Error in fetchAIResponse: ${
-        error instanceof Error ? error.message : "Unknown error"
+      `Error in fetchAIResponse: ${error instanceof Error ? error.message : "Unknown error"
       }`
     );
   }

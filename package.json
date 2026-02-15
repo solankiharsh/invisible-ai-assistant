@@ -1,21 +1,21 @@
 {
-  "name": "pluely",
+  "name": "invisible-ai-assistant",
   "private": false,
   "version": "0.1.9",
   "description": "The Open Source Alternative to Cluely - A lightning-fast, privacy-first AI assistant that works seamlessly during meetings, interviews, and conversations without anyone knowing.",
   "author": {
-    "name": "Srikanth Nani",
-    "email": "srikanthnani1202@gmail.com",
-    "url": "https://www.srikanthnani.com"
+    "name": "Harsh Vardhan Solanki",
+    "email": "solankiharsh@gmail.com",
+    "url": "https://github.com/solankiharsh"
   },
   "license": "GPL-3.0",
-  "homepage": "https://github.com/iamsrikanthnani/pluely#readme",
+  "homepage": "https://github.com/solankiharsh/invisible-ai-assistant#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iamsrikanthnani/pluely.git"
+    "url": "git+https://github.com/solankiharsh/invisible-ai-assistant.git"
   },
   "bugs": {
-    "url": "https://github.com/iamsrikanthnani/pluely/issues"
+    "url": "https://github.com/solankiharsh/invisible-ai-assistant/issues"
   },
   "keywords": [
     "ai-assistant",

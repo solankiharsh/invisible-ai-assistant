@@ -22,3 +22,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment Variables
+.env
+.env.*
+! .env.example
+
+# Credentials
+*.pem
+*.key
+*.p12
+*.jks

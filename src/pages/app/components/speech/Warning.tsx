@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   InfoIcon,
+  AlertCircleIcon,
   ChevronDownIcon,
   KeyboardIcon,
   AudioWaveformIcon,
@@ -132,6 +133,34 @@ export const Warning = ({ isVadMode }: WarningProps) => {
               <p className="text-[9px] opacity-70">
                 The screenshot is automatically cleared after each message is
                 sent.
+              </p>
+            </div>
+          </div>
+
+          {/* Troubleshooting Audio */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5 text-orange-500">
+              <AlertCircleIcon className="w-3 h-3" />
+              <span className="text-[10px] font-medium uppercase tracking-wide">
+                No Audio? (Troubleshooting)
+              </span>
+            </div>
+            <div className="p-2 rounded-md bg-orange-500/5 text-[10px] text-muted-foreground space-y-1">
+              <p>
+                <strong>1. macOS Permissions:</strong> Go to System Settings &gt;
+                Privacy &amp; Security &gt; <strong>Screen Recording</strong>.
+                Ensure Pluely is enabled. System audio capture requires this
+                permission.
+              </p>
+              <p>
+                <strong>2. Check Input Device:</strong> Make sure the "System
+                Audio" is tapping the device sound is playing from (e.g. your
+                headphones or Built-in Speaker).
+              </p>
+              <p>
+                <strong>3. Signal Meter:</strong> Watch the signal bars in the
+                listening status. If they don't move, the app isn't receiving
+                sound data.
               </p>
             </div>
           </div>

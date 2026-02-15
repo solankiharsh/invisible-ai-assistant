@@ -104,6 +104,8 @@ pub async fn start_system_audio_capture(
         .lock()
         .map_err(|e| format!("Failed to set capturing state: {}", e))? = true;
 
+    println!("Starting system audio capture at {} Hz", sr);
+
     // Emit capture started event
     let _ = app_clone.emit("capture-started", sr);
 
@@ -146,6 +148,7 @@ async fn run_vad_capture(
     let mut in_speech = false;
     let mut silence_chunks = 0;
     let mut speech_chunks = 0;
+    let mut chunk_count = 0;
     let max_samples = sr as usize * 30; // 30s safety cap per utterance
 
     while let Some(sample) = stream.next().await {
@@ -166,7 +169,20 @@ async fn run_vad_capture(
             let (rms, peak) = calculate_audio_metrics(&mono);
             let is_speech = rms > config.sensitivity_rms || peak > config.peak_threshold;
 
+            chunk_count += 1;
+            // Emit signal level for UI visualization (approx every 100ms)
+            if chunk_count % 5 == 0 {
+                let _ = app.emit("audio-signal-level", serde_json::json!({
+                    "rms": rms,
+                    "peak": peak
+                }));
+            }
+            if chunk_count % 100 == 0 {
+                println!("Audio Signal Diagnostic - RMS: {:.6}, Peak: {:.6} (Threshold: {:.4})", rms, peak, config.sensitivity_rms);
+            }
+
             if is_speech {
+                println!("VAD: Speech detected! RMS: {:.4}, Peak: {:.4}", rms, peak);
                 if !in_speech {
                     // Speech START detected
                     in_speech = true;

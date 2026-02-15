@@ -17,5 +17,6 @@ fn main() {
         println!("cargo:rustc-env=POSTHOG_API_KEY={}", posthog_api_key);
     }
 
+    println!("cargo:rustc-link-lib=framework=CoreGraphics");
     tauri_build::build()
 }

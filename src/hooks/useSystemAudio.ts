@@ -11,7 +11,6 @@ import {
 } from "@/config";
 import {
   safeLocalStorage,
-  shouldUsePluelyAPI,
   generateConversationTitle,
   saveConversation,
   CONVERSATION_SAVE_DEBOUNCE_MS,
@@ -85,6 +84,7 @@ export function useSystemAudio() {
   const [isContinuousMode, setIsContinuousMode] = useState<boolean>(false);
   const [isRecordingInContinuousMode, setIsRecordingInContinuousMode] =
     useState<boolean>(false);
+  const [signalLevel, setSignalLevel] = useState({ rms: 0, peak: 0 });
 
   const [conversation, setConversation] = useState<ChatConversation>({
     id: "",
@@ -216,6 +216,23 @@ export function useSystemAudio() {
     };
   }, []);
 
+  // Listen for real-time audio signal levels from Rust
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+
+    const setupListener = async () => {
+      unlisten = await listen("audio-signal-level", (event) => {
+        const payload = event.payload as { rms: number; peak: number };
+        setSignalLevel(payload);
+      });
+    };
+
+    setupListener();
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, []);
+
   // Handle single speech detection event (both VAD and continuous modes)
   useEffect(() => {
     let speechUnlisten: (() => void) | undefined;
@@ -235,20 +252,9 @@ export function useSystemAudio() {
             }
             const audioBlob = new Blob([bytes], { type: "audio/wav" });
 
-            const usePluelyAPI = await shouldUsePluelyAPI();
-            if (!selectedSttProvider.provider && !usePluelyAPI) {
-              setError("No speech provider selected.");
-              return;
-            }
-
             const providerConfig = allSttProviders.find(
               (p) => p.id === selectedSttProvider.provider
             );
-
-            if (!providerConfig && !usePluelyAPI) {
-              setError("Speech provider config not found.");
-              return;
-            }
 
             setIsProcessing(true);
 
@@ -484,26 +490,15 @@ export function useSystemAudio() {
         setIsAIProcessing(true);
         setLastAIResponse("");
         setError("");
-
         let fullResponse = "";
 
-        const usePluelyAPI = await shouldUsePluelyAPI();
-        if (!selectedAIProvider.provider && !usePluelyAPI) {
-          setError("No AI provider selected.");
-          return;
-        }
-
-        const provider = allAiProviders.find(
-          (p) => p.id === selectedAIProvider.provider
-        );
-        if (!provider && !usePluelyAPI) {
-          setError("AI provider config not found.");
-          return;
-        }
-
         try {
+          const provider = allAiProviders.find(
+            (p) => p.id === selectedAIProvider.provider
+          );
+
           for await (const chunk of fetchAIResponse({
-            provider: usePluelyAPI ? undefined : provider,
+            provider: provider,
             selectedProvider: selectedAIProvider,
             systemPrompt: prompt,
             history: previousMessages,
@@ -713,7 +708,7 @@ export function useSystemAudio() {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-      invoke("stop_system_audio_capture").catch(() => {});
+      invoke("stop_system_audio_capture").catch(() => { });
     };
   }, []);
 
@@ -924,5 +919,7 @@ export function useSystemAudio() {
     ignoreContinuousRecording,
     // Scroll area ref for keyboard navigation
     scrollAreaRef,
+    // Real-time signal level
+    signalLevel,
   };
 }

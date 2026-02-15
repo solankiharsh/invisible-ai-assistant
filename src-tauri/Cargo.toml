@@ -1,16 +1,17 @@
 [package]
-name = "pluely"
+name = "invisible-ai-assistant"
 version = "0.1.9"
-description = "The Open Source Alternative to Cluely - A lightning-fast, privacy-first AI assistant that works seamlessly during meetings, interviews, and conversations without anyone knowing."
-authors = ["Srikanth Nani <srikanthnani1202@gmail.com>"]
+description = "Invisible AI Assistant - A lightning-fast, privacy-first AI assistant that works seamlessly during meetings, interviews, and conversations without anyone knowing."
+authors = ["Harsh Vardhan Solanki <solankiharsh@gmail.com>"]
 license = "GPL-3.0"
-repository = "https://github.com/iamsrikanthnani/pluely"
-homepage = "https://github.com/iamsrikanthnani/pluely"
+repository = "https://github.com/solankiharsh/invisible-ai-assistant"
+homepage = "https://github.com/solankiharsh/invisible-ai-assistant"
 documentation = "https://github.com/iamsrikanthnani/pluely/wiki"
 readme = "../README.md"
 keywords = ["ai-assistant", "tauri", "desktop-app", "privacy-first", "meeting-assistant"]
 categories = ["gui", "multimedia", "accessibility", "science", "development-tools"]
 edition = "2021"
+default-run = "invisible-ai-assistant"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

@@ -2,7 +2,7 @@
 use super::AudioDevice;
 use anyhow::Result;
 use ca::aggregate_device_keys as agg_keys;
-use cidre::{arc, av, cat, cf, core_audio as ca, ns, os};
+use cidre::{arc, av, cat, cf, core_audio as ca, ns, os, sc};
 use futures_util::Stream;
 use ringbuf::{
     traits::{Consumer, Producer, Split},
@@ -181,15 +181,66 @@ impl SpeakerInput {
             }
             _ => ca::System::default_output_device()?,
         };
+        
+        // ------------------------------------------------------------------
+        // EXPLICIT PERMISSION REQUEST (Release Mode Fix)
+        // ------------------------------------------------------------------
+        // In released apps, simply accessing the tap might fail silently.
+        // We force a check here. "Display Stream" permission = Screen Recording.
+        extern "C" {
+            fn CGPreflightScreenCaptureAccess() -> bool;
+            fn CGRequestScreenCaptureAccess() -> bool;
+        }
+
+        unsafe {
+            let has_access = CGPreflightScreenCaptureAccess();
+            if !has_access {
+                eprintln!("\n⚠️  NO SCREEN RECORDING PERMISSION DETECTED!");
+                eprintln!("   Requesting permission from macOS...");
+                let _ = CGRequestScreenCaptureAccess();
+                
+                // We return an error here to stop the crash loop and force the user to check UI
+                return Err(anyhow::anyhow!(
+                    "Missing Screen Recording permission. macOS prompt should appear. Please restart app after granting."
+                ));
+            } else {
+                 eprintln!("✅ Screen Recording permission verified.");
+            }
+        }
+        // ------------------------------------------------------------------
 
         let output_uid = output_device.uid()?;
+        let device_name = output_device.name().unwrap_or(cf::String::from_str("Unknown"));
+        eprintln!("\n\n==================================================================");
+        eprintln!("AUDIO CAPTURE STARTED");
+        eprintln!("Device Name: {}", device_name);
+        eprintln!("Device UID:  {}", output_uid);
+        
+        // Check for Device Mismatch (Selected vs System Default)
+        if let Ok(def_dev) = ca::System::default_output_device() {
+            if let Ok(def_uid) = def_dev.uid() {
+                eprintln!("System Default UID: {}", def_uid);
+                if def_uid != output_uid {
+                    eprintln!("\n⚠️  WARNING: DEVICE MISMATCH DETECTED!");
+                    eprintln!("   You are tapping device '{}' but system audio is playing to '{}'.", output_uid, def_uid);
+                    eprintln!("   This usually results in SILENCE. Please change Pluely settings to use the active output device.\n");
+                } else {
+                    eprintln!("✅ Device Match: Tapping the active system output.");
+                }
+            }
+        }
+
+        eprintln!("Tap Config:  Stereo Global Tap (All Processes)");
+        eprintln!("==================================================================\n");
 
         let sub_device = cf::DictionaryOf::with_keys_values(
             &[ca::sub_device_keys::uid()],
             &[output_uid.as_type_ref()],
         );
 
-        let tap_desc = ca::TapDesc::with_mono_global_tap_excluding_processes(&ns::Array::new());
+        // Use Stereo Global Tap (captures all system audio)
+        // Mono taps can sometimes fail or produce silence if downmixing fails
+        let tap_desc = ca::TapDesc::with_stereo_global_tap_excluding_processes(&ns::Array::new());
         let tap = tap_desc.create_process_tap()?;
 
         let sub_tap = cf::DictionaryOf::with_keys_values(
@@ -215,7 +266,7 @@ impl SpeakerInput {
                 cf::str!(c"system-audio-tap"), // Simplified name
                 &output_uid,
                 &cf::Uuid::new().to_cf_string(),
-                &cf::ArrayOf::from_slice(&[sub_device.as_ref()]),
+                &cf::ArrayOf::from_slice(&[sub_device.as_ref(), sub_tap.as_ref()]),
                 &cf::ArrayOf::from_slice(&[sub_tap.as_ref()]),
             ],
         );
@@ -249,6 +300,7 @@ impl SpeakerInput {
                 av::AudioPcmBuf::with_buf_list_no_copy(&ctx.format, input_data, None)
             {
                 if let Some(data) = view.data_f32_at(0) {
+
                     process_audio_data(ctx, data);
                 }
             } else if ctx.format.common_format() == av::audio::CommonFormat::PcmF32 {

@@ -9,7 +9,7 @@ use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Manager, WebviewWindow};
 use tauri_plugin_posthog::{init as posthog_init, PostHogConfig, PostHogOptions};
 use tokio::task::JoinHandle;
-mod speaker;
+pub mod speaker;
 use capture::CaptureState;
 use speaker::VadConfig;
 
@@ -31,6 +31,7 @@ fn get_app_version() -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    dotenv::dotenv().ok();
     // Get PostHog API key
     let posthog_api_key = option_env!("POSTHOG_API_KEY").unwrap_or("").to_string();
     let mut builder = tauri::Builder::default()
@@ -104,6 +105,7 @@ pub fn run() {
             api::create_system_prompt,
             api::check_license_status,
             api::get_activity,
+            api::get_env_config,
             speaker::start_system_audio_capture,
             speaker::stop_system_audio_capture,
             speaker::manual_stop_continuous,

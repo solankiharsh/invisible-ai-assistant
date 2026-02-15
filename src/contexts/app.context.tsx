@@ -72,7 +72,7 @@ const AppContext = createContext<IContextType | undefined>(undefined);
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [systemPrompt, setSystemPrompt] = useState<string>(
     safeLocalStorage.getItem(STORAGE_KEYS.SYSTEM_PROMPT) ||
-      DEFAULT_SYSTEM_PROMPT
+    DEFAULT_SYSTEM_PROMPT
   );
 
   const [selectedAudioDevices, setSelectedAudioDevices] = useState<{
@@ -123,7 +123,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [screenshotConfiguration, setScreenshotConfiguration] =
     useState<ScreenshotConfig>({
       mode: "manual",
-      autoPrompt: "Analyze this screenshot and provide insights",
+      autoPrompt: "CRITICAL: DO NOT DESCRIBE THE IMAGE. DO NOT MENTION THE UI, WINDOWS, OR TABS. ACT AS AN EXPERT COMPETITIVE PROGRAMMER. IDENTIFY THE CODING PROBLEM OR BUG SHOWN AND PROVIDE THE COMPLETE, OPTIMIZED CODE SOLUTION OR FIX IMMEDIATELY. START YOUR RESPONSE WITH THE CODE BLOCK.",
       enabled: true,
     });
 
@@ -209,8 +209,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             mode: parsed.mode || "manual",
             autoPrompt:
               parsed.autoPrompt ||
-              "Analyze this screenshot and provide insights",
-            enabled: parsed.enabled !== undefined ? parsed.enabled : false,
+              "CRITICAL: DO NOT DESCRIBE THE IMAGE. DO NOT MENTION THE UI, WINDOWS, OR TABS. ACT AS AN EXPERT COMPETITIVE PROGRAMMER. IDENTIFY THE CODING PROBLEM OR BUG SHOWN AND PROVIDE THE COMPLETE, OPTIMIZED CODE SOLUTION OR FIX IMMEDIATELY. START YOUR RESPONSE WITH THE CODE BLOCK.",
+            enabled: parsed.enabled !== undefined ? parsed.enabled : true,
           });
         }
       } catch {

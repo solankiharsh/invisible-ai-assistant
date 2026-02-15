@@ -11,22 +11,22 @@ use tauri_plugin_machine_uid::MachineUidExt;
 
 fn get_app_endpoint() -> Result<String, String> {
     if let Ok(endpoint) = env::var("APP_ENDPOINT") {
-        return Ok(endpoint);
+        return Ok(endpoint.trim().to_string());
     }
 
     match option_env!("APP_ENDPOINT") {
-        Some(endpoint) => Ok(endpoint.to_string()),
+        Some(endpoint) => Ok(endpoint.trim().to_string()),
         None => Err("APP_ENDPOINT environment variable not set. Please ensure it's set during the build process.".to_string())
     }
 }
 
 fn get_api_access_key() -> Result<String, String> {
     if let Ok(key) = env::var("API_ACCESS_KEY") {
-        return Ok(key);
+        return Ok(key.trim().to_string());
     }
 
     match option_env!("API_ACCESS_KEY") {
-        Some(key) => Ok(key.to_string()),
+        Some(key) => Ok(key.trim().to_string()),
         None => Err("API_ACCESS_KEY environment variable not set. Please ensure it's set during the build process.".to_string())
     }
 }
@@ -191,6 +191,46 @@ pub struct UserAudioConfig {
     headers: Option<Vec<UserAudioHeader>>,
 }
 
+// Helper to get API config with local fallback if Pluely API fails
+async fn get_api_config_with_fallback(
+    app: &AppHandle,
+    provider: Option<String>,
+    model: Option<String>,
+) -> Result<ApiResponseConfig, String> {
+    match fetch_api_response_config(app, provider.clone(), model.clone()).await {
+        Ok(config) => Ok(config),
+        Err(e) => {
+            let api_access_key = get_api_access_key().unwrap_or_default();
+            if api_access_key.starts_with("sk-") {
+                println!("Local .env fallback triggered for AI response.");
+                Ok(ApiResponseConfig {
+                    url: "https://api.openai.com/v1/chat/completions".to_string(),
+                    user_token: api_access_key.clone(),
+                    model: "gpt-4o".to_string(),
+                    body: "".to_string(),
+                    customer_id: None,
+                    customer_email: None,
+                    customer_name: None,
+                    license_key: "".to_string(),
+                    instance_id: "".to_string(),
+                    user_audio: Some(UserAudioConfig {
+                        url: "https://api.openai.com/v1/audio/transcriptions".to_string(),
+                        fallback_url: None,
+                        model: "whisper-1".to_string(),
+                        fallback_model: None,
+                        user_token: api_access_key,
+                        fallback_user_token: None,
+                        headers: None,
+                    }),
+                    errors: None,
+                })
+            } else {
+                Err(format!("Pluely API unavailable and no local sk- key found: {}", e))
+            }
+        }
+    }
+}
+
 // Audio API Command
 #[tauri::command]
 pub async fn transcribe_audio(
@@ -201,10 +241,10 @@ pub async fn transcribe_audio(
     let provider = selected_model.as_ref().map(|model| model.provider.clone());
     let model = selected_model.as_ref().map(|model| model.model.clone());
 
-    let api_config = fetch_api_response_config(&app, provider.clone(), model.clone()).await?;
+    let api_config = get_api_config_with_fallback(&app, provider.clone(), model.clone()).await?;
+
     let user_audio_config = api_config.user_audio.as_ref().ok_or_else(|| {
-        "Audio transcription is not configured for this workspace. Please contact support."
-            .to_string()
+        "Audio transcription is not configured for this workspace.".to_string()
     })?;
 
     let audio_bytes = decode_audio_base64(&audio_base64)?;
@@ -491,8 +531,8 @@ pub async fn chat_stream_response(
         (Some(m.provider.clone()), Some(m.model.clone()))
     });
 
-    // Fetch API configuration
-    let api_config = fetch_api_response_config(&app, provider.clone(), model.clone()).await?;
+    // Fetch API configuration with fallback
+    let api_config = get_api_config_with_fallback(&app, provider.clone(), model.clone()).await?;
 
     // Parse the body from API config to merge with our request
     let mut extra_body: serde_json::Value = if !api_config.body.is_empty() {
@@ -1093,6 +1133,16 @@ pub async fn check_license_status(app: AppHandle) -> Result<bool, String> {
         Ok(_) => Ok(true),
         Err(_) => Ok(false),
     }
+}
+
+#[tauri::command]
+pub fn get_env_config() -> Result<serde_json::Value, String> {
+    let api_access_key = get_api_access_key().unwrap_or_default();
+    let app_endpoint = get_app_endpoint().unwrap_or_default();
+    Ok(serde_json::json!({
+        "api_access_key": api_access_key,
+        "app_endpoint": app_endpoint,
+    }))
 }
 
 #[allow(dead_code)]
