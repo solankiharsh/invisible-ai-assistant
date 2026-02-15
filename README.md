@@ -6,20 +6,9 @@
 
 ---
 
-[![Open Source](https://img.shields.io/badge/Open%20Source-❤️-blue)](https://github.com/iamsrikanthnani/invisible ai assistant)
 [![Tauri](https://img.shields.io/badge/Built%20with-Tauri-orange)](https://tauri.app/)
 [![React](https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-blue)](https://reactjs.org/)
 [![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
-
-### 💝 **Support the Project & Connect**
-
-[![Buy Me a Coffee](https://img.shields.io/badge/☕%20Buy%20Me%20a%20Coffee-Support%20Project-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/srikanthnani) &nbsp; [![Hire Me](https://img.shields.io/badge/💼%20Hire%20Me-Let's%20Connect-6366f1?style=for-the-badge&logo=gmail&logoColor=white)](mailto:srikanthnani1202@gmail.com?subject=Hiring%20Inquiry%20-%20Let's%20Connect&body=Hi%20Srikanth,%0D%0A%0D%0AI%20discovered%20your%20project%20Invisible AI Assistant%20I'm%20reaching%20out%20to%20discuss%20potential%20opportunities.%0D%0A%0D%0ABest%20regards,%0D%0A[Your%20Name]) &nbsp; [![Join Invisible AI Assistant](https://img.shields.io/badge/🤝%20Join%20Invisible AI Assistant-Let's%20connect-1e88e5?style=for-the-badge)](mailto:support@invisible ai assistant.com?subject=Joining%20Invisible AI Assistant%20Inquiry&body=%5Badd%20your%20text%20here%5D%0D%0A%0D%0A---%0D%0APlease%20include%20links%20to%20your%20work%20or%20portfolio%2C%20and%20why%20are%20you%20intrested%20to%20join%20invisible ai assistant.%20%20%0D%0AWe%20are%20primarily%20looking%20for%20marketing%20professionals%2C%20content%20writers%2C%20interns%2C%20and%20creative%20collaborators%20-%20but%20are%20open%20to%20all%20areas%20of%20expertise.%20%20%0D%0AWe%27ll%20be%20in%20touch%20if%20your%20profile%20is%20a%20good%20fit.)
-
-**Socials:**
-[![GitHub](https://img.shields.io/badge/GitHub-iamsrikanthnani-black?style=flat&logo=github)](https://github.com/iamsrikanthnani)
-[![Twitter](https://img.shields.io/badge/Twitter-@truly__sn-1DA1F2?style=flat&logo=twitter)](https://x.com/srikanthnani)
-[![Website](https://img.shields.io/badge/Website-srikanthnani.com-blue?style=flat&logo=globe)](https://www.srikanthnani.com/)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-iamsrikanthnani-0077B5?style=flat&logo=linkedin)](https://www.linkedin.com/in/iamsrikanthnani/)
 
 </div>
 
@@ -30,12 +19,6 @@ This is the **open source version** of the $15M company [Cluely](https://cluely.
 ## 📥 **Download Invisible AI Assistant**
 
 <div align="center">
-
-### 🚀 **Get the Latest Release**
-
-[![Download for macOS](https://img.shields.io/badge/Download%20for-macOS-000000?style=for-the-badge&logo=apple&logoColor=white)](https://invisible ai assistant.com/download/macos) &nbsp; [![Download for Linux](https://img.shields.io/badge/Download%20for-Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://invisible ai assistant.com/download/linux) &nbsp; [![Download for Windows](https://img.shields.io/badge/Download%20for-Windows-0078D4?style=for-the-badge&logo=windows&logoColor=white)](https://invisible ai assistant.com/download/windows)
-
-[![GitHub Release](https://img.shields.io/github/v/release/iamsrikanthnani/invisible ai assistant?style=for-the-badge&logo=github&label=Latest%20Version)](https://invisible ai assistant.com/releases) &nbsp; [![GitHub Downloads](https://img.shields.io/github/downloads/iamsrikanthnani/invisible ai assistant/total?style=for-the-badge&logo=github&label=Total%20Downloads)](https://invisible ai assistant.com/downloads)
 
 **Available formats:** `.dmg` (macOS) • `.msi` (Windows) • `.exe` (Windows) • `.deb` (Linux) • `.rpm` (Linux) • `.AppImage` (Linux)
 
