@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Invisible AI Assistant",
+  "productName": "Pluely",
   "version": "0.1.9",
-  "identifier": "com.solankiharsh.invisible-ai-assistant",
+  "identifier": "com.srikanthnani.pluely",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "Invisible AI Assistant",
+        "title": "Pluely - AI Assistant",
         "width": 600,
         "height": 54,
         "decorations": false,
