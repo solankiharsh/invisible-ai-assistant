@@ -500,26 +500,8 @@ This project is licensed under the **GNU General Public License v3.0** - see the
 
 ---
 
-## 🔗 Links
-
-- **Website**: [invisible ai assistant.com](https://invisible ai assistant.com/) (Invisible AI Assistant website)
-- **Website**: [cluely.com](https://cluely.com/) (Original Cluely)
-- **Documentation**: [GitHub Wiki](https://github.com/iamsrikanthnani/invisible ai assistant/wiki)
-- **Issues**: [GitHub Issues](https://github.com/iamsrikanthnani/invisible ai assistant/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/iamsrikanthnani/invisible ai assistant/discussions)
-
 ---
 
-### 🌐 **Let's Connect**
-
-[![GitHub](https://img.shields.io/badge/GitHub-iamsrikanthnani-black?style=for-the-badge&logo=github)](https://github.com/iamsrikanthnani)&nbsp;
-[![Twitter](https://img.shields.io/badge/Twitter-@truly__sn-black?style=for-the-badge&logo=twitter)](https://x.com/srikanthnani)&nbsp;
-[![Website](https://img.shields.io/badge/Website-srikanthnani.com-black?style=for-the-badge&logo=globe)](https://www.srikanthnani.com/)&nbsp;
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-iamsrikanthnani-black?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/iamsrikanthnani/)&nbsp;
-[![License](https://img.shields.io/badge/License-GPL%20v3-black?style=for-the-badge&logo=gnu&logoColor=white)](LICENSE)
-
----
-
-**Made with ❤️ by [Srikanth Nani](https://www.srikanthnani.com/)**
+**Made with ❤️ by [Harsh Solanki](https://www.linkedin.com/in/solankiharsh/)**
 
 _Experience the power of Cluely, but with complete transparency and control over your data._
