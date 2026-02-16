@@ -43,7 +43,7 @@ This is the **open source version** of the $15M company [Cluely](https://cluely.
 
 #### 📊 **Cloak vs Original Cluely**
 
-|       Feature       |   🟢 **Pluely (Open Source)**   |      🔴 **Original Cluely**       |
+|       Feature       |   🟢 **Invisible AI Assistant (Open Source)**   |      🔴 **Original Cluely**       |
 | :-----------------: | :-----------------------------: | :-------------------------------: |
 |    **App Size**     |          **~10MB** ⚡           |           **~270MB** 🐌           |
 | **Size Difference** |       **27x Smaller** 🪶        | Bloated with unnecessary overhead |
@@ -78,7 +78,7 @@ Voice input can be used in the main overlay window or within chat conversations 
 
 ## Screenshot Capture
 
-Capture screenshots and send them to AI for visual analysis. Pluely offers two screenshot modes:
+Capture screenshots and send them to AI for visual analysis. Invisible AI Assistant offers two screenshot modes:
 
 **Screenshot Mode:** Capture the entire screen with a single click. The full screen is captured instantly and can be processed by AI.
 
@@ -145,11 +145,11 @@ Configure core application behavior and appearance:
 
 **Theme Settings:** Switch between light, dark, and system themes. The theme applies globally across the entire application including the overlay window and dashboard.
 
-**Autostart:** Enable or disable automatic launch when your system starts. When enabled, Pluely launches silently in the background and is ready to use immediately.
+**Autostart:** Enable or disable automatic launch when your system starts. When enabled, Invisible AI Assistant launches silently in the background and is ready to use immediately.
 
-**App Icon Visibility:** Control whether the Pluely icon appears in your dock or taskbar. Hide the icon for maximum stealth during sensitive scenarios, or keep it visible for easy access.
+**App Icon Visibility:** Control whether the Invisible AI Assistant icon appears in your dock or taskbar. Hide the icon for maximum stealth during sensitive scenarios, or keep it visible for easy access.
 
-**Always On Top Mode:** Control whether the overlay window stays above all other applications. When enabled, Pluely remains visible regardless of which application you're using. Disable to allow the window to behave like normal applications.
+**Always On Top Mode:** Control whether the overlay window stays above all other applications. When enabled, Invisible AI Assistant remains visible regardless of which application you're using. Disable to allow the window to behave like normal applications.
 
 ## Responses
 
@@ -192,7 +192,7 @@ Manage cursor visibility and customize keyboard shortcuts:
 
 **Cursor Settings:**
 
-- Invisible: Completely hide the cursor when hovering over Pluely (not supported on Linux)
+- Invisible: Completely hide the cursor when hovering over Invisible AI Assistant (not supported on Linux)
 - Default: Standard cursor appearance
 - Auto: Cursor automatically changes based on context (pointer, text cursor, or default)
 
@@ -200,7 +200,7 @@ Manage cursor visibility and customize keyboard shortcuts:
 
 - **Toggle Dashboard:** Open or close the dashboard window (Default: `Cmd+Shift+D` / `Ctrl+Shift+D`)
 - **Toggle Window:** Show or hide the main overlay window (Default: `Cmd+\` / `Ctrl+\`)
-- **Refocus Input Box:** Bring Pluely forward and focus the input area (Default: `Cmd+Shift+I` / `Ctrl+Shift+I`)
+- **Refocus Input Box:** Bring Invisible AI Assistant forward and focus the input area (Default: `Cmd+Shift+I` / `Ctrl+Shift+I`)
 - **Move Window:** Hold modifier key and use arrow keys to move the overlay window continuously (Default: `Cmd` / `Ctrl`)
 - **System Audio:** Toggle system audio capture on or off (Default: `Cmd+Shift+M` / `Ctrl+Shift+M`)
 - **Voice Input:** Start voice recording for speech-to-text (Default: `Cmd+Shift+A` / `Ctrl+Shift+A`)
