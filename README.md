@@ -395,10 +395,9 @@ All conversations are saved locally in SQLite with full context. Return to previ
 **Background Operation:**
 
 GPL v3 can run silently in the background with the overlay hidden. Enable autostart to launch it automatically when your system boots. Hide the dock icon for maximum stealth while keeping the application running and accessible via keyboard shortcuts.
-
 **Zero Maintenance:**
 
-No subscriptions to manage, no accounts to maintain, and no services to configure beyond your AI provider. Once set up, GPL v3 just works. Updates are delivered automatically when available, and you control when to install them.
++No subscriptions to manage, no accounts to maintain, and no services to configure beyond your AI provider. Once set up, Cloak just works. Updates are delivered automatically when available, and you control when to install them.
 
 ---
 
