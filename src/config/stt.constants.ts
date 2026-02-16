@@ -41,7 +41,7 @@ export const SPEECH_TO_TEXT_PROVIDERS = [
       -H "x-goog-user-project: {{PROJECT_ID}}" \\
       -d '{
         "config": {
-          "encoding": "LINEAR16", 
+          "encoding": "LINEAR16",
           "sampleRateHertz": 16000,
           "languageCode": "en-US"
         },

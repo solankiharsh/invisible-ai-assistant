@@ -181,7 +181,7 @@ impl SpeakerInput {
             }
             _ => ca::System::default_output_device()?,
         };
-        
+
         // ------------------------------------------------------------------
         // EXPLICIT PERMISSION REQUEST (Release Mode Fix)
         // ------------------------------------------------------------------
@@ -198,7 +198,7 @@ impl SpeakerInput {
                 eprintln!("\n⚠️  NO SCREEN RECORDING PERMISSION DETECTED!");
                 eprintln!("   Requesting permission from macOS...");
                 let _ = CGRequestScreenCaptureAccess();
-                
+
                 // We return an error here to stop the crash loop and force the user to check UI
                 return Err(anyhow::anyhow!(
                     "Missing Screen Recording permission. macOS prompt should appear. Please restart app after granting."
@@ -215,7 +215,7 @@ impl SpeakerInput {
         eprintln!("AUDIO CAPTURE STARTED");
         eprintln!("Device Name: {}", device_name);
         eprintln!("Device UID:  {}", output_uid);
-        
+
         // Check for Device Mismatch (Selected vs System Default)
         if let Ok(def_dev) = ca::System::default_output_device() {
             if let Ok(def_uid) = def_dev.uid() {
