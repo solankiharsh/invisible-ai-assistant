@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { DeleteSystemPrompt } from "./Delete";
 import { CreateEditDialog } from "./CreateEditDialog";
-import { PluelyPrompts } from "./PluelyPrompts";
+import { CloakPrompts } from "./CloakPrompts";
 import { useState } from "react";
 import { PageLayout } from "@/layouts";
 
@@ -294,8 +294,8 @@ const SystemPrompts = () => {
         onDelete={handleDeleteConfirm}
       />
 
-      {/* Pluely Default Prompts */}
-      <PluelyPrompts />
+      {/* Cloak Default Prompts */}
+      <CloakPrompts />
     </PageLayout>
   );
 };

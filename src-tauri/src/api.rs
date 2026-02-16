@@ -9,15 +9,35 @@ use std::path::PathBuf;
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_machine_uid::MachineUidExt;
 
+/// Returns true if running in dev mode (API_ACCESS_KEY set, no real backend).
+fn is_dev_mode() -> bool {
+    env::var("API_ACCESS_KEY")
+        .map(|k| !k.trim().is_empty())
+        .unwrap_or(false)
+}
+
 fn get_app_endpoint() -> Result<String, String> {
     if let Ok(endpoint) = env::var("APP_ENDPOINT") {
-        return Ok(endpoint.trim().to_string());
+        let trimmed = endpoint.trim();
+        if !trimmed.is_empty() {
+            return Ok(trimmed.to_string());
+        }
     }
 
-    match option_env!("APP_ENDPOINT") {
-        Some(endpoint) => Ok(endpoint.trim().to_string()),
-        None => Err("APP_ENDPOINT environment variable not set. Please ensure it's set during the build process.".to_string())
+    if let Some(endpoint) = option_env!("APP_ENDPOINT") {
+        let trimmed = endpoint.trim();
+        if !trimmed.is_empty() {
+            return Ok(trimmed.to_string());
+        }
     }
+
+    // Dev mode: API key set but no backend URL — return placeholder so callers don't error.
+    // Commands that need a real server short-circuit and return defaults when is_dev_mode().
+    if is_dev_mode() {
+        return Ok("https://dev-placeholder.invalid".to_string());
+    }
+
+    Err("APP_ENDPOINT environment variable not set. Please ensure it's set during the build process.".to_string())
 }
 
 fn get_api_access_key() -> Result<String, String> {
@@ -48,7 +68,7 @@ fn get_secure_storage_path(app: &AppHandle) -> Result<PathBuf, String> {
 struct SecureStorage {
     license_key: Option<String>,
     instance_id: Option<String>,
-    selected_pluely_model: Option<String>,
+    selected_cloak_model: Option<String>,
 }
 
 pub async fn get_stored_credentials(
@@ -74,7 +94,7 @@ pub async fn get_stored_credentials(
         .ok_or("Instance ID not found".to_string())?;
 
     let selected_model: Option<Model> = storage
-        .selected_pluely_model
+        .selected_cloak_model
         .and_then(|json_str| serde_json::from_str(&json_str).ok());
 
     Ok((license_key, instance_id, selected_model))
@@ -128,9 +148,9 @@ pub struct SystemPromptResponse {
     system_prompt: String,
 }
 
-// Pluely Prompts API
+// Cloak Prompts API
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PluelyPrompt {
+pub struct CloakPrompt {
     title: String,
     prompt: String,
     #[serde(rename = "modelId")]
@@ -140,8 +160,8 @@ pub struct PluelyPrompt {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct PluelyPromptsResponse {
-    prompts: Vec<PluelyPrompt>,
+pub struct CloakPromptsResponse {
+    prompts: Vec<CloakPrompt>,
     total: i32,
     #[serde(rename = "last_updated")]
     last_updated: Option<String>,
@@ -191,7 +211,7 @@ pub struct UserAudioConfig {
     headers: Option<Vec<UserAudioHeader>>,
 }
 
-// Helper to get API config with local fallback if Pluely API fails
+// Helper to get API config with local fallback if Cloak API fails or in dev mode
 async fn get_api_config_with_fallback(
     app: &AppHandle,
     provider: Option<String>,
@@ -201,32 +221,121 @@ async fn get_api_config_with_fallback(
         Ok(config) => Ok(config),
         Err(e) => {
             let api_access_key = get_api_access_key().unwrap_or_default();
-            if api_access_key.starts_with("sk-") {
-                println!("Local .env fallback triggered for AI response.");
-                Ok(ApiResponseConfig {
-                    url: "https://api.openai.com/v1/chat/completions".to_string(),
-                    user_token: api_access_key.clone(),
-                    model: "gpt-4o".to_string(),
-                    body: "".to_string(),
-                    customer_id: None,
-                    customer_email: None,
-                    customer_name: None,
-                    license_key: "".to_string(),
-                    instance_id: "".to_string(),
-                    user_audio: Some(UserAudioConfig {
-                        url: "https://api.openai.com/v1/audio/transcriptions".to_string(),
-                        fallback_url: None,
-                        model: "whisper-1".to_string(),
-                        fallback_model: None,
-                        user_token: api_access_key,
-                        fallback_user_token: None,
-                        headers: None,
-                    }),
-                    errors: None,
-                })
+            let default_model = model.unwrap_or_else(|| "gpt-4o".to_string());
+
+            if is_dev_mode() {
+                let provider_ref = provider.as_deref().unwrap_or("OpenAI");
+                if provider_ref == "Google" {
+                    if let Ok(key) = env::var("GOOGLE_API_KEY").or_else(|_| option_env!("GOOGLE_API_KEY").map(String::from).ok_or(())) {
+                        let key = key.trim().to_string();
+                        if !key.is_empty() {
+                            let chat_model = if default_model.starts_with("models/") {
+                                default_model.trim_start_matches("models/").to_string()
+                            } else {
+                                default_model
+                            };
+                            return Ok(ApiResponseConfig {
+                                url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions".to_string(),
+                                user_token: key.clone(),
+                                model: chat_model,
+                                body: "".to_string(),
+                                customer_id: None,
+                                customer_email: None,
+                                customer_name: None,
+                                license_key: "".to_string(),
+                                instance_id: "".to_string(),
+                                user_audio: None,
+                                errors: None,
+                            });
+                        }
+                    }
+                } else if provider_ref == "Anthropic" {
+                    if let Ok(key) = env::var("ANTHROPIC_API_KEY").or_else(|_| option_env!("ANTHROPIC_API_KEY").map(String::from).ok_or(())) {
+                        let key = key.trim().to_string();
+                        if !key.is_empty() {
+                            return Ok(ApiResponseConfig {
+                                url: "https://api.anthropic.com/v1/messages".to_string(),
+                                user_token: key,
+                                model: default_model,
+                                body: r#"{"max_tokens":8192}"#.to_string(),
+                                customer_id: None,
+                                customer_email: None,
+                                customer_name: None,
+                                license_key: "".to_string(),
+                                instance_id: "".to_string(),
+                                user_audio: None,
+                                errors: None,
+                            });
+                        }
+                    }
+                }
+                // OpenAI (or fallback)
+                let token = env::var("OPENAI_API_KEY")
+                    .ok()
+                    .or_else(|| option_env!("OPENAI_API_KEY").map(String::from))
+                    .and_then(|k| {
+                        let t = k.trim();
+                        if t.is_empty() { None } else { Some(t.to_string()) }
+                    })
+                    .or_else(|| {
+                        if api_access_key.starts_with("sk-") {
+                            Some(api_access_key.clone())
+                        } else {
+                            None
+                        }
+                    });
+                if let Some(user_token) = token {
+                    println!("Dev mode: using local OpenAI config for AI response.");
+                    return Ok(ApiResponseConfig {
+                        url: "https://api.openai.com/v1/chat/completions".to_string(),
+                        user_token: user_token.clone(),
+                        model: default_model,
+                        body: "".to_string(),
+                        customer_id: None,
+                        customer_email: None,
+                        customer_name: None,
+                        license_key: "".to_string(),
+                        instance_id: "".to_string(),
+                        user_audio: Some(UserAudioConfig {
+                            url: "https://api.openai.com/v1/audio/transcriptions".to_string(),
+                            fallback_url: None,
+                            model: "whisper-1".to_string(),
+                            fallback_model: None,
+                            user_token,
+                            fallback_user_token: None,
+                            headers: None,
+                        }),
+                        errors: None,
+                    });
+                }
             } else {
-                Err(format!("Pluely API unavailable and no local sk- key found: {}", e))
+                if api_access_key.starts_with("sk-") {
+                    println!("Local .env fallback triggered for AI response.");
+                    return Ok(ApiResponseConfig {
+                        url: "https://api.openai.com/v1/chat/completions".to_string(),
+                        user_token: api_access_key.clone(),
+                        model: default_model,
+                        body: "".to_string(),
+                        customer_id: None,
+                        customer_email: None,
+                        customer_name: None,
+                        license_key: "".to_string(),
+                        instance_id: "".to_string(),
+                        user_audio: Some(UserAudioConfig {
+                            url: "https://api.openai.com/v1/audio/transcriptions".to_string(),
+                            fallback_url: None,
+                            model: "whisper-1".to_string(),
+                            fallback_model: None,
+                            user_token: api_access_key,
+                            fallback_user_token: None,
+                            headers: None,
+                        }),
+                        errors: None,
+                    });
+                }
             }
+
+            Err(format!("Cloak API unavailable and no local key found: {}", e))
         }
     }
 }
@@ -237,9 +346,15 @@ pub async fn transcribe_audio(
     app: AppHandle,
     audio_base64: String,
 ) -> Result<AudioResponse, String> {
-    let (_, _, selected_model) = get_stored_credentials(&app).await?;
-    let provider = selected_model.as_ref().map(|model| model.provider.clone());
-    let model = selected_model.as_ref().map(|model| model.model.clone());
+    let (provider, model) = if is_dev_mode() {
+        (None, None)
+    } else {
+        let (_, _, selected_model) = get_stored_credentials(&app).await?;
+        (
+            selected_model.as_ref().map(|m| m.provider.clone()),
+            selected_model.as_ref().map(|m| m.model.clone()),
+        )
+    };
 
     let api_config = get_api_config_with_fallback(&app, provider.clone(), model.clone()).await?;
 
@@ -335,6 +450,10 @@ async fn fetch_api_response_config(
     provider: Option<String>,
     model: Option<String>,
 ) -> Result<ApiResponseConfig, String> {
+    if is_dev_mode() {
+        return Err("dev mode: use local config".to_string());
+    }
+
     // Get environment variables
     let app_endpoint = get_app_endpoint()?;
     let api_access_key = get_api_access_key()?;
@@ -525,8 +644,11 @@ pub async fn chat_stream_response(
     image_base64: Option<serde_json::Value>,
     history: Option<String>,
 ) -> Result<String, String> {
-    // Get stored credentials to get selected model
-    let (_, _, selected_model) = get_stored_credentials(&app).await?;
+    let (_, _, selected_model) = get_stored_credentials(&app).await.unwrap_or((
+        String::new(),
+        String::new(),
+        None,
+    ));
     let (provider, model) = selected_model.as_ref().map_or((None, None), |m| {
         (Some(m.provider.clone()), Some(m.model.clone()))
     });
@@ -601,30 +723,92 @@ pub async fn chat_stream_response(
         "content": user_content
     }));
 
-    // Build request body
-    let mut request_body = serde_json::json!({
-        "model": api_config.model,
-        "messages": messages,
-        "stream": true
-    });
-
-    // Merge extra body parameters from API config
-    if let Some(extra_obj) = extra_body.as_object_mut() {
-        if let Some(req_obj) = request_body.as_object_mut() {
-            for (key, value) in extra_obj.iter() {
-                req_obj.insert(key.clone(), value.clone());
+    let is_anthropic = provider.as_deref() == Some("Anthropic");
+    let request_body: serde_json::Value = if is_anthropic {
+        // Anthropic: system is top-level; messages have content as array of blocks (text, image with base64)
+        let system_text = messages
+            .iter()
+            .find(|m| m.get("role").and_then(|r| r.as_str()) == Some("system"))
+            .and_then(|m| m.get("content").and_then(|c| c.as_str()))
+            .unwrap_or("")
+            .to_string();
+        let anthropic_messages: Vec<serde_json::Value> = messages
+            .iter()
+            .filter(|m| m.get("role").and_then(|r| r.as_str()) != Some("system"))
+            .map(|m| {
+                let role = m.get("role").and_then(|r| r.as_str()).unwrap_or("user");
+                let content = m.get("content").cloned().unwrap_or(serde_json::json!([]));
+                let blocks: Vec<serde_json::Value> = if let Some(arr) = content.as_array() {
+                    arr.iter()
+                        .map(|block| {
+                            if block.get("type").and_then(|t| t.as_str()) == Some("image_url") {
+                                let url = block
+                                    .get("image_url")
+                                    .and_then(|u| u.get("url"))
+                                    .and_then(|u| u.as_str())
+                                    .unwrap_or("");
+                                let base64 = url.strip_prefix("data:image/jpeg;base64,").or_else(|| url.strip_prefix("data:image/png;base64,")).unwrap_or(url);
+                                serde_json::json!({
+                                    "type": "image",
+                                    "source": {
+                                        "type": "base64",
+                                        "media_type": "image/jpeg",
+                                        "data": base64
+                                    }
+                                })
+                            } else {
+                                serde_json::json!({
+                                    "type": "text",
+                                    "text": block.get("text").and_then(|t| t.as_str()).unwrap_or("")
+                                })
+                            }
+                        })
+                        .collect()
+                } else if let Some(s) = content.as_str() {
+                    vec![serde_json::json!({ "type": "text", "text": s })]
+                } else {
+                    vec![]
+                };
+                serde_json::json!({ "role": role, "content": blocks })
+            })
+            .collect();
+        let max_tokens = extra_body.get("max_tokens").cloned().unwrap_or(serde_json::json!(8192));
+        serde_json::json!({
+            "model": api_config.model,
+            "max_tokens": max_tokens,
+            "system": system_text,
+            "messages": anthropic_messages,
+            "stream": true
+        })
+    } else {
+        let mut body = serde_json::json!({
+            "model": api_config.model,
+            "messages": messages,
+            "stream": true
+        });
+        if let Some(extra_obj) = extra_body.as_object_mut() {
+            if let Some(req_obj) = body.as_object_mut() {
+                for (key, value) in extra_obj.iter() {
+                    req_obj.insert(key.clone(), value.clone());
+                }
             }
         }
-    }
+        body
+    };
 
-    // Make HTTP request to the configured endpoint with streaming
-    let client = reqwest::Client::new();
     let error_rules = api_config.errors.clone().unwrap_or_default();
-    let response = match client
+    let client = reqwest::Client::new();
+    let mut req_builder = client
         .post(&api_config.url)
         .header("Content-Type", "application/json")
-        .header("Authorization", format!("Bearer {}", api_config.user_token))
-        .json(&request_body)
+        .json(&request_body);
+    if is_anthropic {
+        req_builder = req_builder.header("x-api-key", api_config.user_token.clone());
+        req_builder = req_builder.header("anthropic-version", "2023-06-01");
+    } else {
+        req_builder = req_builder.header("Authorization", format!("Bearer {}", api_config.user_token));
+    }
+    let response = match req_builder
         .send()
         .await
     {
@@ -711,28 +895,38 @@ pub async fn chat_stream_response(
                         }
 
                         if !json_str.is_empty() {
-                            // Try to parse the JSON and extract content
                             if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(json_str)
                             {
-                                if usage.is_none() {
-                                    if let Some(collected) = parsed.get("usage") {
-                                        if !collected.is_null() {
-                                            usage = Some(collected.clone());
-                                        }
-                                    }
-                                }
-                                if let Some(choices) =
-                                    parsed.get("choices").and_then(|c| c.as_array())
-                                {
-                                    if let Some(first_choice) = choices.first() {
-                                        if let Some(delta) = first_choice.get("delta") {
-                                            if let Some(content) =
-                                                delta.get("content").and_then(|c| c.as_str())
-                                            {
+                                if is_anthropic {
+                                    if parsed.get("type").and_then(|t| t.as_str()) == Some("content_block_delta") {
+                                        if let Some(delta) = parsed.get("delta") {
+                                            if let Some(content) = delta.get("text").and_then(|c| c.as_str()) {
                                                 full_response.push_str(content);
-                                                // Emit just the content to frontend
                                                 let _ = app.emit("chat_stream_chunk", content);
                                                 stream_started = true;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    if usage.is_none() {
+                                        if let Some(collected) = parsed.get("usage") {
+                                            if !collected.is_null() {
+                                                usage = Some(collected.clone());
+                                            }
+                                        }
+                                    }
+                                    if let Some(choices) =
+                                        parsed.get("choices").and_then(|c| c.as_array())
+                                    {
+                                        if let Some(first_choice) = choices.first() {
+                                            if let Some(delta) = first_choice.get("delta") {
+                                                if let Some(content) =
+                                                    delta.get("content").and_then(|c| c.as_str())
+                                                {
+                                                    full_response.push_str(content);
+                                                    let _ = app.emit("chat_stream_chunk", content);
+                                                    stream_started = true;
+                                                }
                                             }
                                         }
                                     }
@@ -922,9 +1116,186 @@ async fn report_api_error(
     }
 }
 
+// Dev-mode: fetch models from provider APIs (OpenAI, Google, Anthropic)
+// All listed chat models are treated as supporting text+image so the UI does not show "text only" for every model.
+fn openai_modality(_id: &str) -> &'static str {
+    "text,image"
+}
+
+async fn fetch_openai_models() -> Result<Vec<Model>, String> {
+    let key = env::var("OPENAI_API_KEY")
+        .ok()
+        .or_else(|| option_env!("OPENAI_API_KEY").map(String::from))
+        .filter(|k| !k.trim().is_empty());
+    let key = match key {
+        Some(k) => k,
+        None => return Ok(vec![]),
+    };
+    let client = reqwest::Client::new();
+    let response = client
+        .get("https://api.openai.com/v1/models")
+        .header("Authorization", format!("Bearer {}", key.trim()))
+        .send()
+        .await
+        .map_err(|e| format!("OpenAI models request failed: {}", e))?;
+    if !response.status().is_success() {
+        let status = response.status();
+        let text = response.text().await.unwrap_or_default();
+        return Err(format!("OpenAI models API error ({}): {}", status, text));
+    }
+    let json: serde_json::Value = response.json().await.map_err(|e| format!("OpenAI models parse error: {}", e))?;
+    let empty: Vec<serde_json::Value> = vec![];
+    let data = json.get("data").and_then(|d| d.as_array()).unwrap_or(&empty);
+    let models: Vec<Model> = data
+        .iter()
+        .filter_map(|m| {
+            let id = m.get("id")?.as_str()?;
+            let id = id.to_string();
+            if id.starts_with("gpt-") || id.starts_with("o1") || id.starts_with("o3") || id.starts_with("o4") || id.starts_with("chatgpt-") {
+                let modality = openai_modality(&id).to_string();
+                Some(Model {
+                    provider: "OpenAI".to_string(),
+                    name: id.clone(),
+                    id: id.clone(),
+                    model: id.clone(),
+                    description: format!("OpenAI {}", id),
+                    modality,
+                    is_available: true,
+                })
+            } else {
+                None
+            }
+        })
+        .collect();
+    Ok(models)
+}
+
+#[derive(Debug, Deserialize)]
+struct GoogleModelsResponse {
+    #[serde(default)]
+    models: Vec<GoogleModelEntry>,
+}
+
+#[derive(Debug, Deserialize)]
+struct GoogleModelEntry {
+    name: Option<String>,
+    #[serde(rename = "displayName")]
+    display_name: Option<String>,
+    #[serde(rename = "supportedGenerationMethods")]
+    supported_generation_methods: Option<Vec<String>>,
+}
+
+async fn fetch_google_models() -> Result<Vec<Model>, String> {
+    let key = env::var("GOOGLE_API_KEY")
+        .ok()
+        .or_else(|| option_env!("GOOGLE_API_KEY").map(String::from))
+        .filter(|k| !k.trim().is_empty());
+    let key = match key {
+        Some(k) => k,
+        None => return Ok(vec![]),
+    };
+    let client = reqwest::Client::new();
+    let url = format!("https://generativelanguage.googleapis.com/v1beta/models?key={}", key.trim());
+    let response = client
+        .get(&url)
+        .send()
+        .await
+        .map_err(|e| format!("Google models request failed: {}", e))?;
+    if !response.status().is_success() {
+        let status = response.status();
+        let text = response.text().await.unwrap_or_default();
+        return Err(format!("Google models API error ({}): {}", status, text));
+    }
+    let body: GoogleModelsResponse = response.json().await.map_err(|e| format!("Google models parse error: {}", e))?;
+    let models: Vec<Model> = body
+        .models
+        .into_iter()
+        .filter_map(|m| {
+            let name = m.name?;
+            if !name.starts_with("models/") {
+                return None;
+            }
+            let model_id = name.trim_start_matches("models/").to_string();
+            let methods = m.supported_generation_methods.unwrap_or_default();
+            if !methods.iter().any(|s| s == "generateContent") {
+                return None;
+            }
+            let display = m.display_name.unwrap_or_else(|| model_id.clone());
+            let modality = if model_id.contains("gemini-2") || model_id.contains("gemini-1.5") {
+                "text,image"
+            } else {
+                "text,image"
+            };
+            Some(Model {
+                provider: "Google".to_string(),
+                name: display,
+                id: model_id.clone(),
+                model: model_id.clone(),
+                description: format!("Google {}", model_id),
+                modality: modality.to_string(),
+                is_available: true,
+            })
+        })
+        .collect();
+    Ok(models)
+}
+
+fn anthropic_models() -> Vec<Model> {
+    let list: Vec<(&str, &str)> = vec![
+        ("claude-sonnet-4-20250514", "Claude Sonnet 4"),
+        ("claude-3-5-sonnet-20241022", "Claude 3.5 Sonnet"),
+        ("claude-3-5-haiku-20241022", "Claude 3.5 Haiku"),
+        ("claude-3-opus-20240229", "Claude 3 Opus"),
+        ("claude-3-sonnet-20240229", "Claude 3 Sonnet"),
+        ("claude-3-haiku-20240307", "Claude 3 Haiku"),
+    ];
+    list.into_iter()
+        .map(|(id, name)| Model {
+            provider: "Anthropic".to_string(),
+            name: name.to_string(),
+            id: id.to_string(),
+            model: id.to_string(),
+            description: format!("Anthropic {}", name),
+            modality: "text,image".to_string(),
+            is_available: true,
+        })
+        .collect()
+}
+
+async fn fetch_dev_mode_models() -> Result<Vec<Model>, String> {
+    let mut all = Vec::new();
+    if let Ok(openai) = fetch_openai_models().await {
+        all.extend(openai);
+    }
+    if let Ok(google) = fetch_google_models().await {
+        all.extend(google);
+    }
+    if env::var("ANTHROPIC_API_KEY").map(|k| !k.trim().is_empty()).unwrap_or(false)
+        || option_env!("ANTHROPIC_API_KEY").map(|s| !s.trim().is_empty()).unwrap_or(false)
+    {
+        all.extend(anthropic_models());
+    }
+    if all.is_empty() {
+        all.push(Model {
+            provider: "OpenAI".to_string(),
+            name: "GPT-4o".to_string(),
+            id: "gpt-4o".to_string(),
+            model: "gpt-4o".to_string(),
+            description: "Dev default model".to_string(),
+            modality: "text,image".to_string(),
+            is_available: true,
+        });
+    }
+    Ok(all)
+}
+
 // Models API Command
 #[tauri::command]
 pub async fn fetch_models(app: AppHandle) -> Result<Vec<Model>, String> {
+    if is_dev_mode() {
+        return fetch_dev_mode_models().await;
+    }
+
     // Get environment variables
     let app_endpoint = get_app_endpoint()?;
     let api_access_key = get_api_access_key()?;
@@ -998,9 +1369,17 @@ pub async fn fetch_models(app: AppHandle) -> Result<Vec<Model>, String> {
     Ok(models_response.models)
 }
 
-// Fetch Pluely Prompts API
+// Fetch Cloak Prompts API
 #[tauri::command]
-pub async fn fetch_prompts() -> Result<PluelyPromptsResponse, String> {
+pub async fn fetch_prompts() -> Result<CloakPromptsResponse, String> {
+    if is_dev_mode() {
+        return Ok(CloakPromptsResponse {
+            prompts: vec![],
+            total: 0,
+            last_updated: None,
+        });
+    }
+
     let app_endpoint = get_app_endpoint()?;
     let api_access_key = get_api_access_key()?;
 
@@ -1046,7 +1425,7 @@ pub async fn fetch_prompts() -> Result<PluelyPromptsResponse, String> {
         return Err(format!("Server error ({}): {}", status, error_text));
     }
 
-    let prompts_response: PluelyPromptsResponse = response
+    let prompts_response: CloakPromptsResponse = response
         .json()
         .await
         .map_err(|e| format!("Failed to parse prompts response: {}", e))?;
@@ -1060,6 +1439,10 @@ pub async fn create_system_prompt(
     app: AppHandle,
     user_prompt: String,
 ) -> Result<SystemPromptResponse, String> {
+    if is_dev_mode() {
+        return Err("Creating system prompts on the server is not available in development. Use local prompts instead.".to_string());
+    }
+
     // Get environment variables
     let app_endpoint = get_app_endpoint()?;
     let api_access_key = get_api_access_key()?;
@@ -1139,15 +1522,28 @@ pub async fn check_license_status(app: AppHandle) -> Result<bool, String> {
 pub fn get_env_config() -> Result<serde_json::Value, String> {
     let api_access_key = get_api_access_key().unwrap_or_default();
     let app_endpoint = get_app_endpoint().unwrap_or_default();
+    let has_openai = env::var("OPENAI_API_KEY").map(|k| !k.trim().is_empty()).unwrap_or(false)
+        || option_env!("OPENAI_API_KEY").map(|s| !s.trim().is_empty()).unwrap_or(false);
+    let has_google = env::var("GOOGLE_API_KEY").map(|k| !k.trim().is_empty()).unwrap_or(false)
+        || option_env!("GOOGLE_API_KEY").map(|s| !s.trim().is_empty()).unwrap_or(false);
+    let has_anthropic = env::var("ANTHROPIC_API_KEY").map(|k| !k.trim().is_empty()).unwrap_or(false)
+        || option_env!("ANTHROPIC_API_KEY").map(|s| !s.trim().is_empty()).unwrap_or(false);
     Ok(serde_json::json!({
         "api_access_key": api_access_key,
         "app_endpoint": app_endpoint,
+        "has_openai_key": has_openai,
+        "has_google_key": has_google,
+        "has_anthropic_key": has_anthropic,
     }))
 }
 
 #[allow(dead_code)]
 #[tauri::command]
 pub async fn get_activity(app: AppHandle) -> Result<serde_json::Value, String> {
+    if is_dev_mode() {
+        return Ok(serde_json::json!([]));
+    }
+
     let app_endpoint = get_app_endpoint()?;
     let api_access_key = get_api_access_key()?;
 

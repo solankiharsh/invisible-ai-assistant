@@ -1,4 +1,4 @@
-use pluely_lib::speaker::SpeakerInput;
+use cloak_lib::speaker::SpeakerInput;
 use futures_util::StreamExt;
 use std::time::Duration;
 

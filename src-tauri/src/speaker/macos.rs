@@ -1,4 +1,4 @@
-// Pluely macos speaker input and stream
+// Cloak macos speaker input and stream
 use super::AudioDevice;
 use anyhow::Result;
 use ca::aggregate_device_keys as agg_keys;
@@ -223,7 +223,7 @@ impl SpeakerInput {
                 if def_uid != output_uid {
                     eprintln!("\n⚠️  WARNING: DEVICE MISMATCH DETECTED!");
                     eprintln!("   You are tapping device '{}' but system audio is playing to '{}'.", output_uid, def_uid);
-                    eprintln!("   This usually results in SILENCE. Please change Pluely settings to use the active output device.\n");
+                    eprintln!("   This usually results in SILENCE. Please change Cloak settings to use the active output device.\n");
                 } else {
                     eprintln!("✅ Device Match: Tapping the active system output.");
                 }
