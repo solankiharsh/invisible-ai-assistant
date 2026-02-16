@@ -1,28 +1,27 @@
-# Invisible AI Assistant 🚀
-
-<a href="https://harshsolanki.com/">
-  <img src="/images/app-image.png" alt="invisible ai assistant banner" width="100%" />
-</a>
+# Cloak 🚀
 
 ---
 
+[![Open Source](https://img.shields.io/badge/Open%20Source-❤️-blue)](https://github.com/solankiharsh/invisible-ai-assistant)
 [![Tauri](https://img.shields.io/badge/Built%20with-Tauri-orange)](https://tauri.app/)
 [![React](https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-blue)](https://reactjs.org/)
 [![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
+
+### 💝 **Support the Project & Connect**
+
+[![Buy Me a Coffee](https://img.shields.io/badge/☕%20Buy%20Me%20a%20Coffee-Support%20Project-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/hvsolanki2l) &nbsp; [![Hire Me](https://img.shields.io/badge/💼%20Hire%20Me-Let's%20Connect-6366f1?style=for-the-badge&logo=gmail&logoColor=white)](mailto:hvsolanki27@gmail.com?subject=Hiring%20Inquiry%20-%20Let's%20Connect&body=Hi%20Harsh,%0D%0A%0D%0AI%20discovered%20your%20project%20Cloak%20I'm%20reaching%20out%20to%20discuss%20potential%20opportunities.%0D%0A%0D%0ABest%20regards,%0D%0A[Your%20Name]) &nbsp; [![Join Cloak](https://img.shields.io/badge/🤝%20Join%20Cloak-Let's%20connect-1e88e5?style=for-the-badge)](mailto:hvsolanki27@gmail.com?subject=Joining%20Cloak%20Inquiry&body=%5Badd%20your%20text%20here%5D%0D%0A%0D%0A---%0D%0APlease%20include%20links%20to%20your%20work%20or%20portfolio%2C%20and%20why%20are%20you%20intrested%20to%20join%20cloak.%20%20%0D%0AWe%20are%20primarily%20looking%20for%20marketing%20professionals%2C%20content%20writers%2C%20interns%2C%20and%20creative%20collaborators%20-%20but%20are%20open%20to%20all%20areas%20of%20expertise.%20%20%0D%0AWe%27ll%20be%20in%20touch%20if%20your%20profile%20is%20a%20good%20fit.)
+
+**Socials:**
+[![GitHub](https://img.shields.io/badge/GitHub-solankiharsh-black?style=flat&logo=github)](https://github.com/solankiharsh)
+[![Twitter](https://img.shields.io/badge/Twitter-@truly__sn-1DA1F2?style=flat&logo=twitter)](https://x.com/b63a7ad1ca92484)
+[![Website](https://img.shields.io/badge/Website-solharsh.com-blue?style=flat&logo=globe)](https://www.solharsh.com/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-solankiharsh-0077B5?style=flat&logo=linkedin)](https://www.linkedin.com/in/solankiharsh/)
 
 </div>
 
 > **The Open Source Alternative to Cluely** - A lightning-fast, privacy-first AI assistant that works seamlessly during meetings, interviews, and conversations without anyone knowing.
 
 This is the **open source version** of the $15M company [Cluely](https://cluely.com/) 🎯. Experience the same powerful real-time AI assistance, but with complete transparency, privacy, and customization control.
-
-## 📥 **Download Invisible AI Assistant**
-
-<div align="center">
-
-**Available formats:** `.dmg` (macOS) • `.msi` (Windows) • `.exe` (Windows) • `.deb` (Linux) • `.rpm` (Linux) • `.AppImage` (Linux)
-
-</div>
 
 ---
 
@@ -42,7 +41,7 @@ This is the **open source version** of the $15M company [Cluely](https://cluely.
 
 </div>
 
-#### 📊 **Invisible AI Assistant vs Original Cluely**
+#### 📊 **Cloak vs Original Cluely**
 
 |       Feature       |   🟢 **Invisible AI Assistant (Open Source)**   |      🔴 **Original Cluely**       |
 | :-----------------: | :-----------------------------: | :-------------------------------: |
@@ -59,7 +58,7 @@ This is the **open source version** of the $15M company [Cluely](https://cluely.
 
 ## Invisibility Mode
 
-Invisible AI Assistant operates with complete stealth during sensitive scenarios. The application features a translucent overlay window that sits above all other applications, making it invisible in video calls, screen shares, and recordings. The window is designed to be screenshot-proof and undetectable in meeting platforms like Zoom, Google Meet, Microsoft Teams, and Slack Huddles. When sharing your screen or recording, Invisible AI Assistant remains invisible to your audience while providing you with real-time AI assistance.
+Cloak operates with complete stealth during sensitive scenarios. The application features a translucent overlay window that sits above all other applications, making it invisible in video calls, screen shares, and recordings. The window is designed to be screenshot-proof and undetectable in meeting platforms like Zoom, Google Meet, Microsoft Teams, and Slack Huddles. When sharing your screen or recording, Pluely remains invisible to your audience while providing you with real-time AI assistance.
 
 ## System Audio Capture
 
@@ -97,17 +96,17 @@ Configure your preferred screenshot mode and processing behavior in the Screensh
 
 ## File Attachments
 
-Attach files to your AI conversations for analysis, review, or context. Invisible AI Assistant supports attaching multiple files at once, allowing you to send documents, images, code files, or any text-based content to the AI. Files are displayed as chips with file type indicators and can be removed individually or cleared all at once.
+Attach files to your AI conversations for analysis, review, or context. Cloak supports attaching multiple files at once, allowing you to send documents, images, code files, or any text-based content to the AI. Files are displayed as chips with file type indicators and can be removed individually or cleared all at once.
 
 Drag and drop files directly into the input area, or use the file attachment button to browse and select files from your system. Attached files are processed and sent alongside your text prompt to provide context for AI responses.
 
-# Invisible AI Assistant Dashboard
+# Cloak Dashboard
 
-The Invisible AI Assistant Dashboard provides comprehensive access to all features and settings through an intuitive sidebar navigation. Access the dashboard using the keyboard shortcut `Cmd+Shift+D` (macOS) / `Ctrl+Shift+D` (Windows/Linux).
+The Cloak Dashboard provides comprehensive access to all features and settings through an intuitive sidebar navigation. Access the dashboard using the keyboard shortcut `Cmd+Shift+D` (macOS) / `Ctrl+Shift+D` (Windows/Linux).
 
 ## Dashboard
 
-The main dashboard displays your Invisible AI Assistant license status and usage statistics. Activate your license key to unlock faster AI responses, premium features, and priority support. View your token usage and API activity over time with detailed charts showing daily consumption patterns. Refresh your activity data to see real-time updates of your API usage.
+The main dashboard displays your Cloak license status and usage statistics. Activate your license key to unlock faster AI responses, premium features, and priority support. View your token usage and API activity over time with detailed charts showing daily consumption patterns. Refresh your activity data to see real-time updates of your API usage.
 
 ## Chats
 
@@ -219,7 +218,7 @@ Configure AI language model providers from a comprehensive list of pre-configure
 
 **Custom AI Provider Setup:**
 
-Add any LLM provider using curl commands. Invisible AI Assistant supports full streaming and non-streaming capabilities with complete flexibility:
+Add any LLM provider using curl commands. Cloak supports full streaming and non-streaming capabilities with complete flexibility:
 
 1. Enter your curl command with the API endpoint and request structure
 2. Configure authentication using Bearer tokens, API keys, or custom headers
@@ -227,7 +226,7 @@ Add any LLM provider using curl commands. Invisible AI Assistant supports full s
 4. Toggle streaming support for real-time response generation
 5. Create custom variables using `{{VARIABLE_NAME}}` format in your curl command
 
-**Dynamic Variables:** Invisible AI Assistant automatically replaces these variables in your requests:
+**Dynamic Variables:** Cloak automatically replaces these variables in your requests:
 
 - `{{TEXT}}` - User's text input
 - `{{IMAGE}}` - Base64 encoded image data
@@ -285,17 +284,17 @@ The Dev Space allows complete flexibility to integrate any AI or STT service tha
 
 ---
 
-## Why Invisible AI Assistant?
+## Why Cloak?
 
-Invisible AI Assistant redefines what an AI assistant can be. Built from the ground up with privacy, performance, and discretion in mind, it delivers enterprise-grade capabilities without compromising your data security or system resources.
+Cloak redefines what an AI assistant can be. Built from the ground up with privacy, performance, and discretion in mind, it delivers enterprise-grade capabilities without compromising your data security or system resources.
 
 ## Complete Invisibility
 
-Invisible AI Assistant operates with absolute stealth. The application features a translucent overlay window that sits seamlessly above all other applications, making it invisible to everyone except you.
+Cloak operates with absolute stealth. The application features a translucent overlay window that sits seamlessly above all other applications, making it invisible to everyone except you.
 
 **Undetectable Everywhere:**
 
-The overlay window is designed to be invisible in video calls, screen shares, recordings, and screenshots. When you share your screen in Zoom, Google Meet, Microsoft Teams, or any other meeting platform, Invisible AI Assistant remains completely hidden from your audience. The translucent design makes it extremely difficult to capture in screenshots, and it won't appear on projectors or shared screens.
+The overlay window is designed to be invisible in video calls, screen shares, recordings, and screenshots. When you share your screen in Zoom, Google Meet, Microsoft Teams, or any other meeting platform, Cloak remains completely hidden from your audience. The translucent design makes it extremely difficult to capture in screenshots, and it won't appear on projectors or shared screens.
 
 **Perfect Stealth Design:**
 
@@ -303,11 +302,11 @@ The window transparency can be adjusted to your preference, allowing you to see 
 
 **Critical Use Cases:**
 
-Use Invisible AI Assistant confidently during job interviews to get real-time information without detection. Access product details instantly during sales calls while maintaining professionalism. Reference documentation during technical meetings without breaking your flow. Get learning assistance during educational presentations that's completely invisible to your audience. Analyze screenshots and get suggestions during design reviews without anyone knowing. Debug code and get syntax help during live coding sessions in complete stealth.
+Use Cloak confidently during job interviews to get real-time information without detection. Access product details instantly during sales calls while maintaining professionalism. Reference documentation during technical meetings without breaking your flow. Get learning assistance during educational presentations that's completely invisible to your audience. Analyze screenshots and get suggestions during design reviews without anyone knowing. Debug code and get syntax help during live coding sessions in complete stealth.
 
 ## Privacy-First Architecture
 
-Your data stays yours. Invisible AI Assistant is engineered with privacy as the foundation, not an afterthought.
+Your data stays yours. Cloak is engineered with privacy as the foundation, not an afterthought.
 
 **Local Storage:**
 
@@ -323,11 +322,11 @@ License keys and sensitive credentials are stored in encrypted secure storage in
 
 **Zero Server Dependency:**
 
-Invisible AI Assistant makes API calls directly from your device to your chosen AI provider. There are no proxy servers, no middleware, and no data collection. Your conversations go straight from your device to OpenAI, Anthropic, Google, or whichever provider you choose. You can inspect every network request in your browser's developer tools to verify this claim.
+Cloak makes API calls directly from your device to your chosen AI provider. There are no proxy servers, no middleware, and no data collection. Your conversations go straight from your device to OpenAI, Anthropic, Google, or whichever provider you choose. You can inspect every network request in your browser's developer tools to verify this claim.
 
 **No Telemetry:**
 
-Invisible AI Assistant has no analytics, no usage tracking, no data collection, and no telemetry of any kind. Your usage patterns, conversations, and behavior remain completely private. The application doesn't phone home, doesn't report statistics, and doesn't collect any information about how you use it.
+Cloak has no analytics, no usage tracking, no data collection, and no telemetry of any kind. Your usage patterns, conversations, and behavior remain completely private. The application doesn't phone home, doesn't report statistics, and doesn't collect any information about how you use it.
 
 **Offline Capability:**
 
@@ -335,7 +334,7 @@ The application works without an internet connection for all local features. You
 
 ## Blazing Fast Performance
 
-Built with Tauri and Rust, Invisible AI Assistant delivers native desktop performance that puts web-based alternatives to shame.
+Built with Tauri and Rust, Cloak delivers native desktop performance that puts web-based alternatives to shame.
 
 **Lightweight Binary:**
 
@@ -343,11 +342,11 @@ The entire application is approximately 10MB in size, making it 27 times smaller
 
 **Instant Startup:**
 
-Invisible AI Assistant launches in under 100 milliseconds. There's no splash screen, no loading spinner, and no waiting. Click the icon and it's ready to use immediately. This instant startup makes it perfect for quick queries and impromptu assistance.
+Cloak launches in under 100 milliseconds. There's no splash screen, no loading spinner, and no waiting. Click the icon and it's ready to use immediately. This instant startup makes it perfect for quick queries and impromptu assistance.
 
 **Native Performance:**
 
-Built on Tauri, Invisible AI Assistant runs as a native application using your system's webview. There's no embedded Chromium, no browser overhead, and no unnecessary resource consumption. It uses 50% less RAM compared to Electron apps and has minimal CPU impact even during active use.
+Built on Tauri, Cloak runs as a native application using your system's webview. There's no embedded Chromium, no browser overhead, and no unnecessary resource consumption. It uses 50% less RAM compared to Electron apps and has minimal CPU impact even during active use.
 
 **Efficient Resource Usage:**
 
@@ -355,11 +354,11 @@ The application typically uses less than 50MB of RAM during normal operation. Sy
 
 **Cross-Platform:**
 
-Invisible AI Assistant runs natively on macOS, Windows, and Linux with platform-specific optimizations. The same codebase delivers optimal performance on all three platforms, using native system APIs and respecting platform conventions.
+Cloak runs natively on macOS, Windows, and Linux with platform-specific optimizations. The same codebase delivers optimal performance on all three platforms, using native system APIs and respecting platform conventions.
 
 ## Complete Control
 
-Own your AI experience. Invisible AI Assistant gives you unprecedented control over every aspect of the application.
+Own your AI experience. Cloak gives you unprecedented control over every aspect of the application.
 
 **Any AI Provider:**
 
@@ -383,7 +382,7 @@ The entire codebase is open source under GPL v3. You can inspect every line of c
 
 ## Always Ready
 
-Invisible AI Assistant sits quietly on your desktop, consuming minimal resources while remaining instantly accessible.
+GPL v3 sits quietly on your desktop, consuming minimal resources while remaining instantly accessible.
 
 **One-Click Access:**
 
@@ -395,11 +394,10 @@ All conversations are saved locally in SQLite with full context. Return to previ
 
 **Background Operation:**
 
-Invisible AI Assistant can run silently in the background with the overlay hidden. Enable autostart to launch it automatically when your system boots. Hide the dock icon for maximum stealth while keeping the application running and accessible via keyboard shortcuts.
-
+GPL v3 can run silently in the background with the overlay hidden. Enable autostart to launch it automatically when your system boots. Hide the dock icon for maximum stealth while keeping the application running and accessible via keyboard shortcuts.
 **Zero Maintenance:**
 
-No subscriptions to manage, no accounts to maintain, and no services to configure beyond your AI provider. Once set up, Invisible AI Assistant just works. Updates are delivered automatically when available, and you control when to install them.
++No subscriptions to manage, no accounts to maintain, and no services to configure beyond your AI provider. Once set up, Cloak just works. Updates are delivered automatically when available, and you control when to install them.
 
 ---
 
@@ -425,8 +423,8 @@ This includes essential packages like WebKitGTK (Linux), system libraries, and o
 
 ```bash
 # Clone the repository
-git clone https://github.com/iamsrikanthnani/invisible ai assistant.git
-cd invisible ai assistant
+git clone https://github.com/solankiharsh/cloak.git
+cd cloak
 
 # Install dependencies
 npm install
@@ -452,23 +450,12 @@ This creates platform-specific installers in `src-tauri/target/release/bundle/`:
 
 ## Contributing
 
-We keep contributions focused so Invisible AI Assistant stays lean and reliable.
+We keep contributions focused so Cloak stays lean and reliable.
 
 - ✅ We currently accept bug-fix pull requests and improvements to existing functionality.
 - ❌ We are not accepting feature requests, new AI/STT providers, or large UI overhauls via PR.
 
-### Earn a Lifetime Dev Pro License
-
-Want lifetime access to Invisible AI Assistant Dev Pro (a $120 value)? Head to our contribution hub at [invisible ai assistant.com/contribute](https://invisible ai assistant.com/contribute) and tackle one of the critical issues listed there. When your pull request closes an eligible GitHub issue, email the PR link to [support@invisible ai assistant.com](mailto:support@invisible ai assistant.com) to claim your reward. Only the issues on that page qualify, and the best-quality submission wins when multiple PRs target the same issue.
-
-### How to Contribute
-
-1. Pick an eligible bug from [invisible ai assistant.com/contribute](https://invisible ai assistant.com/contribute) or another open issue that fits the guidelines above.
-2. Fork the repository and create a feature branch.
-3. Fix the bug, add tests where applicable, and submit a clear PR description.
-4. Email your PR link to [support@invisible ai assistant.com](mailto:support@invisible ai assistant.com) if it resolves a bounty issue.
-
-> 💡 **Like this project?** Consider [buying me a coffee ☕](https://www.buymeacoffee.com/srikanthnani) or [hiring me](mailto:srikanthnani1202@gmail.com?subject=Hiring%20Inquiry%20-%20Invisible AI Assistant%20Developer) for your next project!
+> 💡 **Like this project?** Consider [buying me a coffee ☕](https://buymeacoffee.com/hvsolanki2l) or [hiring me](mailto:hvsolanki27@gmail.com?subject=Hiring%20Inquiry%20-%20Cloak%20Developer) for your   next project!
 
 ### **Contributing Guidelines**
 
@@ -500,8 +487,16 @@ This project is licensed under the **GNU General Public License v3.0** - see the
 
 ---
 
+### 🌐 **Let's Connect**
+
+[![GitHub](https://img.shields.io/badge/GitHub-solankiharsh-black?style=for-the-badge&logo=github)](https://github.com/solankiharsh)&nbsp;
+[![Twitter](https://img.shields.io/badge/Twitter-@b63a7ad1ca92484-black?style=for-the-badge&logo=twitter)](https://x.com/b63a7ad1ca92484)&nbsp;
+[![Website](https://img.shields.io/badge/Website-solharsh.com-black?style=for-the-badge&logo=globe)](https://www.solharsh.com/)&nbsp;
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-solankiharsh-black?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/solankiharsh/)&nbsp;
+[![License](https://img.shields.io/badge/License-GPL%20v3-black?style=for-the-badge&logo=gnu&logoColor=white)](LICENSE)
+
 ---
 
-**Made with ❤️ by [Harsh Solanki](https://www.linkedin.com/in/solankiharsh/)**
+**Made with ❤️ by [Harsh Solanki](https://www.solankiharsh.com/)**
 
 _Experience the power of Cluely, but with complete transparency and control over your data._
