@@ -747,12 +747,18 @@ pub async fn chat_stream_response(
                                     .and_then(|u| u.get("url"))
                                     .and_then(|u| u.as_str())
                                     .unwrap_or("");
-                                let base64 = url.strip_prefix("data:image/jpeg;base64,").or_else(|| url.strip_prefix("data:image/png;base64,")).unwrap_or(url);
+                                let (base64, media_type) = if let Some(b) = url.strip_prefix("data:image/png;base64,") {
+                                    (b, "image/png")
+                                } else if let Some(b) = url.strip_prefix("data:image/jpeg;base64,") {
+                                    (b, "image/jpeg")
+                                } else {
+                                    (url, "image/jpeg")
+                                };
                                 serde_json::json!({
                                     "type": "image",
                                     "source": {
                                         "type": "base64",
-                                        "media_type": "image/jpeg",
+                                        "media_type": media_type,
                                         "data": base64
                                     }
                                 })
