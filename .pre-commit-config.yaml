@@ -1,0 +1,11 @@
+# Minimal config so pre-commit.ci can run (fixes "error during ci config").
+# Install locally: pre-commit install && pre-commit run --all-files
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
