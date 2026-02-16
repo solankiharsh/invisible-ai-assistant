@@ -81,18 +81,18 @@ export const useMenuItems = () => {
           {
             icon: MailIcon,
             label: "Contact Support",
-            href: "mailto:support@pluely.com",
+            href: "mailto:hvsolanki27@gmail.com",
           },
         ]
       : []),
     {
       icon: BugIcon,
       label: "Report a bug",
-      href: "https://github.com/iamsrikanthnani/pluely/issues/new?template=bug-report.yml",
+      href: "https://github.com/solankiharsh/invisible-ai-assistant/issues/new",
     },
     {
       icon: PowerIcon,
-      label: "Quit pluely",
+      label: "Quit Cloak",
       action: async () => {
         await invoke("exit_app");
       },
@@ -107,22 +107,22 @@ export const useMenuItems = () => {
     {
       title: "Website",
       icon: GlobeIcon,
-      link: "https://pluely.com",
+      link: "https://solharsh.com",
     },
     {
       title: "Github",
       icon: GithubIcon,
-      link: "https://github.com/iamsrikanthnani/pluely",
+      link: "https://github.com/solankiharsh/invisible-ai-assistant",
     },
     {
       title: "Buy Me a Coffee",
       icon: CoffeeIcon,
-      link: "https://buymeacoffee.com/srikanthnani",
+      link: "https://buymeacoffee.com/hvsolanki2l",
     },
     {
       title: "Follow on X",
       icon: XIcon,
-      link: "https://x.com/srikanthnani",
+      link: "https://x.com/HarshSolan24317",
     },
   ];
 

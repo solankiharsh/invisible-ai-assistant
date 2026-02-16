@@ -1,4 +1,4 @@
-// Pluely macos speaker input and stream
+// Cloak macos speaker input and stream
 use super::AudioDevice;
 use anyhow::Result;
 use ca::aggregate_device_keys as agg_keys;
@@ -181,7 +181,7 @@ impl SpeakerInput {
             }
             _ => ca::System::default_output_device()?,
         };
-        
+
         // ------------------------------------------------------------------
         // EXPLICIT PERMISSION REQUEST (Release Mode Fix)
         // ------------------------------------------------------------------
@@ -198,7 +198,7 @@ impl SpeakerInput {
                 eprintln!("\n⚠️  NO SCREEN RECORDING PERMISSION DETECTED!");
                 eprintln!("   Requesting permission from macOS...");
                 let _ = CGRequestScreenCaptureAccess();
-                
+
                 // We return an error here to stop the crash loop and force the user to check UI
                 return Err(anyhow::anyhow!(
                     "Missing Screen Recording permission. macOS prompt should appear. Please restart app after granting."
@@ -215,7 +215,7 @@ impl SpeakerInput {
         eprintln!("AUDIO CAPTURE STARTED");
         eprintln!("Device Name: {}", device_name);
         eprintln!("Device UID:  {}", output_uid);
-        
+
         // Check for Device Mismatch (Selected vs System Default)
         if let Ok(def_dev) = ca::System::default_output_device() {
             if let Ok(def_uid) = def_dev.uid() {
@@ -223,7 +223,7 @@ impl SpeakerInput {
                 if def_uid != output_uid {
                     eprintln!("\n⚠️  WARNING: DEVICE MISMATCH DETECTED!");
                     eprintln!("   You are tapping device '{}' but system audio is playing to '{}'.", output_uid, def_uid);
-                    eprintln!("   This usually results in SILENCE. Please change Pluely settings to use the active output device.\n");
+                    eprintln!("   This usually results in SILENCE. Please change Cloak settings to use the active output device.\n");
                 } else {
                     eprintln!("✅ Device Match: Tapping the active system output.");
                 }

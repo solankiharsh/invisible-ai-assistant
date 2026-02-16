@@ -31,8 +31,8 @@ CREATE TRIGGER IF NOT EXISTS update_conversation_timestamp_on_message_insert
 AFTER INSERT ON messages
 FOR EACH ROW
 BEGIN
-    UPDATE conversations 
-    SET updated_at = NEW.timestamp 
+    UPDATE conversations
+    SET updated_at = NEW.timestamp
     WHERE id = NEW.conversation_id;
 END;
 
@@ -40,8 +40,7 @@ CREATE TRIGGER IF NOT EXISTS update_conversation_timestamp_on_message_update
 AFTER UPDATE ON messages
 FOR EACH ROW
 BEGIN
-    UPDATE conversations 
-    SET updated_at = NEW.timestamp 
+    UPDATE conversations
+    SET updated_at = NEW.timestamp
     WHERE id = NEW.conversation_id;
 END;
-

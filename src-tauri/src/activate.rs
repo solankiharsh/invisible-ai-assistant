@@ -47,7 +47,7 @@ fn get_secure_storage_path(app: &AppHandle) -> Result<PathBuf, String> {
 struct SecureStorage {
     license_key: Option<String>,
     instance_id: Option<String>,
-    selected_pluely_model: Option<String>,
+    selected_cloak_model: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -60,7 +60,7 @@ pub struct StorageItem {
 pub struct StorageResult {
     license_key: Option<String>,
     instance_id: Option<String>,
-    selected_pluely_model: Option<String>,
+    selected_cloak_model: Option<String>,
 }
 
 #[tauri::command]
@@ -77,9 +77,9 @@ pub async fn secure_storage_save(app: AppHandle, items: Vec<StorageItem>) -> Res
 
     for item in items {
         match item.key.as_str() {
-            "pluely_license_key" => storage.license_key = Some(item.value),
-            "pluely_instance_id" => storage.instance_id = Some(item.value),
-            "selected_pluely_model" => storage.selected_pluely_model = Some(item.value),
+            "cloak_license_key" => storage.license_key = Some(item.value),
+            "cloak_instance_id" => storage.instance_id = Some(item.value),
+            "selected_cloak_model" => storage.selected_cloak_model = Some(item.value),
             _ => return Err(format!("Invalid storage key: {}", item.key)),
         }
     }
@@ -101,7 +101,7 @@ pub async fn secure_storage_get(app: AppHandle) -> Result<StorageResult, String>
         return Ok(StorageResult {
             license_key: None,
             instance_id: None,
-            selected_pluely_model: None,
+            selected_cloak_model: None,
         });
     }
 
@@ -114,7 +114,7 @@ pub async fn secure_storage_get(app: AppHandle) -> Result<StorageResult, String>
     Ok(StorageResult {
         license_key: storage.license_key,
         instance_id: storage.instance_id,
-        selected_pluely_model: storage.selected_pluely_model,
+        selected_cloak_model: storage.selected_cloak_model,
     })
 }
 
@@ -134,9 +134,9 @@ pub async fn secure_storage_remove(app: AppHandle, keys: Vec<String>) -> Result<
 
     for key in keys {
         match key.as_str() {
-            "pluely_license_key" => storage.license_key = None,
-            "pluely_instance_id" => storage.instance_id = None,
-            "selected_pluely_model" => storage.selected_pluely_model = None,
+            "cloak_license_key" => storage.license_key = None,
+            "cloak_instance_id" => storage.instance_id = None,
+            "selected_cloak_model" => storage.selected_cloak_model = None,
             _ => return Err(format!("Invalid storage key: {}", key)),
         }
     }
@@ -193,6 +193,23 @@ pub async fn activate_license_api(
     app: AppHandle,
     license_key: String,
 ) -> Result<ActivationResponse, String> {
+    // Dev mode: skip payment server entirely
+    if let Ok(key) = env::var("API_ACCESS_KEY") {
+        if !key.trim().is_empty() {
+            return Ok(ActivationResponse {
+                activated: true,
+                error: None,
+                license_key: Some(license_key),
+                instance: Some(InstanceInfo {
+                    id: "dev-instance".to_string(),
+                    name: "Local Dev".to_string(),
+                    created_at: "2024-01-01T00:00:00Z".to_string(),
+                }),
+                is_dev_license: true,
+            });
+        }
+    }
+
     // Get payment endpoint and API access key from environment
     let payment_endpoint = get_payment_endpoint()?;
     let api_access_key = get_api_access_key()?;
@@ -254,6 +271,19 @@ pub async fn activate_license_api(
 
 #[tauri::command]
 pub async fn deactivate_license_api(app: AppHandle) -> Result<ActivationResponse, String> {
+    // Dev mode: skip payment server, return success
+    if let Ok(key) = env::var("API_ACCESS_KEY") {
+        if !key.trim().is_empty() {
+            return Ok(ActivationResponse {
+                activated: false,
+                error: None,
+                license_key: None,
+                instance: None,
+                is_dev_license: true,
+            });
+        }
+    }
+
     // Get payment endpoint and API access key from environment
     let payment_endpoint = get_payment_endpoint()?;
     let api_access_key = get_api_access_key()?;
@@ -342,6 +372,17 @@ pub fn mask_license_key_cmd(license_key: String) -> String {
 
 #[tauri::command]
 pub async fn get_checkout_url() -> Result<CheckoutResponse, String> {
+    // Dev mode: no checkout needed
+    if let Ok(key) = env::var("API_ACCESS_KEY") {
+        if !key.trim().is_empty() {
+            return Ok(CheckoutResponse {
+                success: Some(false),
+                checkout_url: None,
+                error: Some("Dev mode: use your dev admin key".to_string()),
+            });
+        }
+    }
+
     // Get payment endpoint and API access key from environment
     let payment_endpoint = get_payment_endpoint()?;
     let api_access_key = get_api_access_key()?;

@@ -143,9 +143,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     safeLocalStorage.setItem(STORAGE_KEYS.SUPPORTS_IMAGES, String(value));
   };
 
-  // Pluely API State
-  const [pluelyApiEnabled, setPluelyApiEnabledState] = useState<boolean>(
-    safeLocalStorage.getItem(STORAGE_KEYS.PLUELY_API_ENABLED) === "true"
+  // Cloak API State
+  const [cloakApiEnabled, setCloakApiEnabledState] = useState<boolean>(
+    safeLocalStorage.getItem(STORAGE_KEYS.CLOAK_API_ENABLED) === "true"
   );
 
   const getActiveLicenseStatus = async () => {
@@ -154,7 +154,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setHasActiveLicense(response.is_active);
 
     if (response?.is_dev_license) {
-      setPluelyApiEnabled(false);
+      // Dev mode: unlock everything (await so image-support logic and loadData run)
+      await setCloakApiEnabled(true);
+      setSupportsImages(true);
     }
 
     // Check if the auto configs are enabled
@@ -276,12 +278,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       }
     }
 
-    // Load Pluely API enabled state
-    const savedPluelyApiEnabled = safeLocalStorage.getItem(
-      STORAGE_KEYS.PLUELY_API_ENABLED
+    // Load Cloak API enabled state
+    const savedCloakApiEnabled = safeLocalStorage.getItem(
+      STORAGE_KEYS.CLOAK_API_ENABLED
     );
-    if (savedPluelyApiEnabled !== null) {
-      setPluelyApiEnabledState(savedPluelyApiEnabled === "true");
+    if (savedCloakApiEnabled !== null) {
+      setCloakApiEnabledState(savedCloakApiEnabled === "true");
     }
 
     // Load selected audio devices
@@ -453,23 +455,24 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // Check if the current AI provider/model supports images
   useEffect(() => {
     const checkImageSupport = async () => {
-      if (pluelyApiEnabled) {
-        // For Pluely API, check the selected model's modality
+      if (cloakApiEnabled) {
+        // For Cloak API, check the selected model's modality
         try {
           const storage = await invoke<{
-            selected_pluely_model?: string;
+            selected_cloak_model?: string;
           }>("secure_storage_get");
 
-          if (storage.selected_pluely_model) {
-            const model = JSON.parse(storage.selected_pluely_model);
+          if (storage.selected_cloak_model) {
+            const model = JSON.parse(storage.selected_cloak_model);
             const hasImageSupport = model.modality?.includes("image") ?? false;
             setSupportsImages(hasImageSupport);
           } else {
-            // No model selected, assume no image support
-            setSupportsImages(false);
+            // No model selected yet: enable screenshot/upload by default (e.g. dev or before first model pick)
+            setSupportsImages(true);
           }
         } catch (error) {
-          setSupportsImages(false);
+          // Secure storage error: allow images so UI isn't greyed out
+          setSupportsImages(true);
         }
       } else {
         // For custom AI providers, check if curl contains {{IMAGE}}
@@ -486,7 +489,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     };
 
     checkImageSupport();
-  }, [pluelyApiEnabled, selectedAIProvider.provider]);
+  }, [cloakApiEnabled, selectedAIProvider.provider]);
 
   // Sync selected AI to localStorage
   useEffect(() => {
@@ -533,7 +536,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // Update supportsImages immediately when provider changes
-    if (!pluelyApiEnabled) {
+    if (!cloakApiEnabled) {
       const selectedProvider = allAiProviders.find((p) => p.id === provider);
       if (selectedProvider) {
         const hasImageSupport =
@@ -614,27 +617,27 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     loadData();
   };
 
-  const setPluelyApiEnabled = async (enabled: boolean) => {
-    setPluelyApiEnabledState(enabled);
-    safeLocalStorage.setItem(STORAGE_KEYS.PLUELY_API_ENABLED, String(enabled));
+  const setCloakApiEnabled = async (enabled: boolean) => {
+    setCloakApiEnabledState(enabled);
+    safeLocalStorage.setItem(STORAGE_KEYS.CLOAK_API_ENABLED, String(enabled));
 
     if (enabled) {
       try {
         const storage = await invoke<{
-          selected_pluely_model?: string;
+          selected_cloak_model?: string;
         }>("secure_storage_get");
 
-        if (storage.selected_pluely_model) {
-          const model = JSON.parse(storage.selected_pluely_model);
+        if (storage.selected_cloak_model) {
+          const model = JSON.parse(storage.selected_cloak_model);
           const hasImageSupport = model.modality?.includes("image") ?? false;
           setSupportsImages(hasImageSupport);
         } else {
-          // No model selected, assume no image support
-          setSupportsImages(false);
+          // No model selected yet: enable screenshot/upload by default
+          setSupportsImages(true);
         }
       } catch (error) {
-        console.debug("Failed to check Pluely model image support:", error);
-        setSupportsImages(false);
+        console.debug("Failed to check Cloak model image support:", error);
+        setSupportsImages(true);
       }
     } else {
       // Switching to regular provider - check if curl contains {{IMAGE}}
@@ -671,8 +674,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     toggleAlwaysOnTop,
     toggleAutostart,
     loadData,
-    pluelyApiEnabled,
-    setPluelyApiEnabled,
+    cloakApiEnabled,
+    setCloakApiEnabled,
     hasActiveLicense,
     setHasActiveLicense,
     getActiveLicenseStatus,

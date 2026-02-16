@@ -33,7 +33,7 @@ interface ActivationResponse {
 interface StorageResult {
   license_key?: string;
   instance_id?: string;
-  selected_pluely_model?: string;
+  selected_cloak_model?: string;
 }
 
 interface Model {
@@ -46,14 +46,14 @@ interface Model {
   isAvailable: boolean;
 }
 
-const LICENSE_KEY_STORAGE_KEY = "pluely_license_key";
-const INSTANCE_ID_STORAGE_KEY = "pluely_instance_id";
-const SELECTED_PLUELY_MODEL_STORAGE_KEY = "selected_pluely_model";
+const LICENSE_KEY_STORAGE_KEY = "cloak_license_key";
+const INSTANCE_ID_STORAGE_KEY = "cloak_instance_id";
+const SELECTED_CLOAK_MODEL_STORAGE_KEY = "selected_cloak_model";
 
-export const PluelyApiSetup = () => {
+export const CloakApiSetup = () => {
   const {
-    pluelyApiEnabled,
-    setPluelyApiEnabled,
+    cloakApiEnabled,
+    setCloakApiEnabled,
     hasActiveLicense,
     setHasActiveLicense,
     getActiveLicenseStatus,
@@ -120,9 +120,9 @@ export const PluelyApiSetup = () => {
         setMaskedLicenseKey(null);
       }
 
-      if (storage.selected_pluely_model) {
+      if (storage.selected_cloak_model) {
         try {
-          const storedModel = JSON.parse(storage.selected_pluely_model);
+          const storedModel = JSON.parse(storage.selected_cloak_model);
           setSelectedModel(storedModel);
         } catch (e) {
           console.error("Failed to parse stored model:", e);
@@ -176,9 +176,9 @@ export const PluelyApiSetup = () => {
         setSuccess("License activated successfully!");
         setLicenseKey(""); // Clear the input
 
-        // Auto-enable Pluely API when license is activated
+        // Auto-enable Cloak API when license is activated
         if (!response?.is_dev_license) {
-          setPluelyApiEnabled(true);
+          setCloakApiEnabled(true);
         }
 
         await loadLicenseStatus(); // Reload status
@@ -206,14 +206,14 @@ export const PluelyApiSetup = () => {
         keys: [
           LICENSE_KEY_STORAGE_KEY,
           INSTANCE_ID_STORAGE_KEY,
-          SELECTED_PLUELY_MODEL_STORAGE_KEY,
+          SELECTED_CLOAK_MODEL_STORAGE_KEY,
         ],
       });
 
       setSuccess("License removed successfully!");
 
-      // Disable Pluely API when license is removed
-      setPluelyApiEnabled(false);
+      // Disable Cloak API when license is removed
+      setCloakApiEnabled(false);
 
       await fetchModels();
       await loadLicenseStatus(); // Reload status
@@ -232,7 +232,7 @@ export const PluelyApiSetup = () => {
     setSearchValue(""); // Reset search when model is selected
 
     // Update supportsImages based on the selected model
-    if (pluelyApiEnabled) {
+    if (cloakApiEnabled) {
       const hasImageSupport = model.modality?.includes("image") ?? false;
       setSupportsImages(hasImageSupport);
     }
@@ -241,7 +241,7 @@ export const PluelyApiSetup = () => {
       await invoke("secure_storage_save", {
         items: [
           {
-            key: SELECTED_PLUELY_MODEL_STORAGE_KEY,
+            key: SELECTED_CLOAK_MODEL_STORAGE_KEY,
             value: JSON.stringify(model),
           },
         ],
@@ -284,17 +284,17 @@ export const PluelyApiSetup = () => {
 
   const title = isModelsLoading
     ? "Loading Models..."
-    : `Invisible AI supports ${models?.length} model${models?.length !== 1 ? "s" : ""
+    : `Cloak supports ${models?.length} model${models?.length !== 1 ? "s" : ""
     }`;
 
   const description = isModelsLoading
     ? "Fetching the list of supported models..."
     : providerList
       ? `Access top models from providers like ${providerList}. and select smaller models for faster responses.`
-      : "Explore all the models Invisible AI supports.";
+      : "Explore all the models Cloak supports.";
 
   return (
-    <div id="pluely-api" className="space-y-3 -mt-2">
+    <div id="cloak-api" className="space-y-3 -mt-2">
       <div className="space-y-2 pt-2">
         {/* Error Message */}
         {error && (
@@ -396,7 +396,13 @@ export const PluelyApiSetup = () => {
         )}
         {/* License Key Input or Display */}
         <div className="space-y-2">
-          {!storedLicenseKey ? (
+          {hasActiveLicense && !storedLicenseKey ? (
+            <div className="rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950 p-3">
+              <p className="text-sm font-medium text-green-700 dark:text-green-400">
+                Dev License Active — all paid features unlocked locally.
+              </p>
+            </div>
+          ) : !storedLicenseKey ? (
             <>
               <div className="space-y-1">
                 <label className="text-sm font-medium">License Key</label>
@@ -467,7 +473,7 @@ export const PluelyApiSetup = () => {
                 <div className="-mt-1">
                   <p className="text-sm font-medium text-muted-foreground select-auto">
                     If you need any help or any assistance, contact
-                    support@pluely.com
+                    hvsolanki27@gmail.com
                   </p>
                 </div>
               ) : null}
@@ -477,18 +483,18 @@ export const PluelyApiSetup = () => {
       </div>
       <div className="flex justify-between items-center">
         <Header
-          title={`${pluelyApiEnabled ? "Disable" : "Enable"} Invisible AI API`}
+          title={`${cloakApiEnabled ? "Disable" : "Enable"} Cloak API`}
           description={
             storedLicenseKey
-              ? pluelyApiEnabled
-                ? "Using all Invisible AI APIs for audio, and chat."
+              ? cloakApiEnabled
+                ? "Using all Cloak APIs for audio, and chat."
                 : "Using all your own AI Providers for audio, and chat."
-              : "A valid license is required to enable Invisible AI API or you can use your own AI Providers and STT Providers."
+              : "A valid license is required to enable Cloak API or you can use your own AI Providers and STT Providers."
           }
         />
         <Switch
-          checked={pluelyApiEnabled}
-          onCheckedChange={setPluelyApiEnabled}
+          checked={cloakApiEnabled}
+          onCheckedChange={setCloakApiEnabled}
           disabled={!storedLicenseKey || !hasActiveLicense} // Disable if no license is stored
         />
       </div>
