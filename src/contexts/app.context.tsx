@@ -154,8 +154,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setHasActiveLicense(response.is_active);
 
     if (response?.is_dev_license) {
-      // Dev mode: unlock everything
-      setCloakApiEnabled(true);
+      // Dev mode: unlock everything (await so image-support logic and loadData run)
+      await setCloakApiEnabled(true);
       setSupportsImages(true);
     }
 
