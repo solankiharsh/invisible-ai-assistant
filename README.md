@@ -13,7 +13,7 @@
 
 **Socials:**
 [![GitHub](https://img.shields.io/badge/GitHub-solankiharsh-black?style=flat&logo=github)](https://github.com/solankiharsh)
-[![Twitter](https://img.shields.io/badge/Twitter-@truly__sn-1DA1F2?style=flat&logo=twitter)](https://x.com/b63a7ad1ca92484)
+[![Twitter](https://img.shields.io/badge/Twitter-@solankiharsh-1DA1F2?style=flat&logo=twitter)](https://x.com/solankiharsh)
 [![Website](https://img.shields.io/badge/Website-solharsh.com-blue?style=flat&logo=globe)](https://www.solharsh.com/)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-solankiharsh-0077B5?style=flat&logo=linkedin)](https://www.linkedin.com/in/solankiharsh/)
 
