@@ -10,7 +10,7 @@ import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import curl2Json from "@bany/curl-to-json";
-import { shouldUsePluelyAPI } from "./pluely.api";
+import { shouldUseCloakAPI } from "./cloak.api";
 import { CHUNK_POLL_INTERVAL_MS } from "../chat-constants";
 import { getResponseSettings, RESPONSE_LENGTHS, LANGUAGES } from "@/lib";
 import { MARKDOWN_FORMATTING_INSTRUCTIONS } from "@/config/constants";
@@ -43,8 +43,8 @@ function buildEnhancedSystemPrompt(baseSystemPrompt?: string): string {
   return prompts.join(" ");
 }
 
-// Pluely AI streaming function
-async function* fetchPluelyAIResponse(params: {
+// Cloak AI streaming function
+async function* fetchCloakAIResponse(params: {
   systemPrompt?: string;
   userMessage: string;
   imagesBase64?: string[];
@@ -157,7 +157,7 @@ async function* fetchPluelyAIResponse(params: {
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    yield `Pluely API Error: ${errorMessage}`;
+    yield `Cloak API Error: ${errorMessage}`;
   }
 }
 
@@ -189,10 +189,10 @@ export async function* fetchAIResponse(params: {
 
     const enhancedSystemPrompt = buildEnhancedSystemPrompt(systemPrompt);
 
-    // Check if we should use Pluely API instead
-    const usePluelyAPI = await shouldUsePluelyAPI();
-    if (usePluelyAPI) {
-      yield* fetchPluelyAIResponse({
+    // Check if we should use Cloak API instead
+    const useCloakAPI = await shouldUseCloakAPI();
+    if (useCloakAPI) {
+      yield* fetchCloakAIResponse({
         systemPrompt: enhancedSystemPrompt,
         userMessage,
         imagesBase64,

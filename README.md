@@ -43,7 +43,7 @@ This is the **open source version** of the $15M company [Cluely](https://cluely.
 
 #### 📊 **Cloak vs Original Cluely**
 
-|       Feature       |   🟢 **Invisible AI Assistant (Open Source)**   |      🔴 **Original Cluely**       |
+|       Feature       |   🟢 **Cloak (Open Source)**   |      🔴 **Original Cluely**       |
 | :-----------------: | :-----------------------------: | :-------------------------------: |
 |    **App Size**     |          **~10MB** ⚡           |           **~270MB** 🐌           |
 | **Size Difference** |       **27x Smaller** 🪶        | Bloated with unnecessary overhead |
@@ -58,7 +58,7 @@ This is the **open source version** of the $15M company [Cluely](https://cluely.
 
 ## Invisibility Mode
 
-Cloak operates with complete stealth during sensitive scenarios. The application features a translucent overlay window that sits above all other applications, making it invisible in video calls, screen shares, and recordings. The window is designed to be screenshot-proof and undetectable in meeting platforms like Zoom, Google Meet, Microsoft Teams, and Slack Huddles. When sharing your screen or recording, Pluely remains invisible to your audience while providing you with real-time AI assistance.
+Cloak operates with complete stealth during sensitive scenarios. The application features a translucent overlay window that sits above all other applications, making it invisible in video calls, screen shares, and recordings. The window is designed to be screenshot-proof and undetectable in meeting platforms like Zoom, Google Meet, Microsoft Teams, and Slack Huddles. When sharing your screen or recording, Cloak remains invisible to your audience while providing you with real-time AI assistance.
 
 ## System Audio Capture
 
@@ -78,7 +78,7 @@ Voice input can be used in the main overlay window or within chat conversations 
 
 ## Screenshot Capture
 
-Capture screenshots and send them to AI for visual analysis. Invisible AI Assistant offers two screenshot modes:
+Capture screenshots and send them to AI for visual analysis. Cloak offers two screenshot modes:
 
 **Screenshot Mode:** Capture the entire screen with a single click. The full screen is captured instantly and can be processed by AI.
 
@@ -145,11 +145,11 @@ Configure core application behavior and appearance:
 
 **Theme Settings:** Switch between light, dark, and system themes. The theme applies globally across the entire application including the overlay window and dashboard.
 
-**Autostart:** Enable or disable automatic launch when your system starts. When enabled, Invisible AI Assistant launches silently in the background and is ready to use immediately.
+**Autostart:** Enable or disable automatic launch when your system starts. When enabled, Cloak launches silently in the background and is ready to use immediately.
 
-**App Icon Visibility:** Control whether the Invisible AI Assistant icon appears in your dock or taskbar. Hide the icon for maximum stealth during sensitive scenarios, or keep it visible for easy access.
+**App Icon Visibility:** Control whether the Cloak icon appears in your dock or taskbar. Hide the icon for maximum stealth during sensitive scenarios, or keep it visible for easy access.
 
-**Always On Top Mode:** Control whether the overlay window stays above all other applications. When enabled, Invisible AI Assistant remains visible regardless of which application you're using. Disable to allow the window to behave like normal applications.
+**Always On Top Mode:** Control whether the overlay window stays above all other applications. When enabled, Cloak remains visible regardless of which application you're using. Disable to allow the window to behave like normal applications.
 
 ## Responses
 
@@ -192,7 +192,7 @@ Manage cursor visibility and customize keyboard shortcuts:
 
 **Cursor Settings:**
 
-- Invisible: Completely hide the cursor when hovering over Invisible AI Assistant (not supported on Linux)
+- Invisible: Completely hide the cursor when hovering over Cloak (not supported on Linux)
 - Default: Standard cursor appearance
 - Auto: Cursor automatically changes based on context (pointer, text cursor, or default)
 
@@ -200,7 +200,7 @@ Manage cursor visibility and customize keyboard shortcuts:
 
 - **Toggle Dashboard:** Open or close the dashboard window (Default: `Cmd+Shift+D` / `Ctrl+Shift+D`)
 - **Toggle Window:** Show or hide the main overlay window (Default: `Cmd+\` / `Ctrl+\`)
-- **Refocus Input Box:** Bring Invisible AI Assistant forward and focus the input area (Default: `Cmd+Shift+I` / `Ctrl+Shift+I`)
+- **Refocus Input Box:** Bring Cloak forward and focus the input area (Default: `Cmd+Shift+I` / `Ctrl+Shift+I`)
 - **Move Window:** Hold modifier key and use arrow keys to move the overlay window continuously (Default: `Cmd` / `Ctrl`)
 - **System Audio:** Toggle system audio capture on or off (Default: `Cmd+Shift+M` / `Ctrl+Shift+M`)
 - **Voice Input:** Start voice recording for speech-to-text (Default: `Cmd+Shift+A` / `Ctrl+Shift+A`)
@@ -382,7 +382,7 @@ The entire codebase is open source under GPL v3. You can inspect every line of c
 
 ## Always Ready
 
-GPL v3 sits quietly on your desktop, consuming minimal resources while remaining instantly accessible.
+Cloak sits quietly on your desktop, consuming minimal resources while remaining instantly accessible.
 
 **One-Click Access:**
 
@@ -394,10 +394,11 @@ All conversations are saved locally in SQLite with full context. Return to previ
 
 **Background Operation:**
 
-Pluely can run silently in the background with the overlay hidden. Enable autostart to launch it automatically when your system boots. Hide the dock icon for maximum stealth while keeping the application running and accessible via keyboard shortcuts.
+Cloak can run silently in the background with the overlay hidden. Enable autostart to launch it automatically when your system boots. Hide the dock icon for maximum stealth while keeping the application running and accessible via keyboard shortcuts.
+
 **Zero Maintenance:**
 
-+No subscriptions to manage, no accounts to maintain, and no services to configure beyond your AI provider. Once set up, Cloak just works. Updates are delivered automatically when available, and you control when to install them.
+No subscriptions to manage, no accounts to maintain, and no services to configure beyond your AI provider. Once set up, Cloak just works. Updates are delivered automatically when available, and you control when to install them.
 
 ---
 
@@ -423,8 +424,8 @@ This includes essential packages like WebKitGTK (Linux), system libraries, and o
 
 ```bash
 # Clone the repository
-git clone https://github.com/solankiharsh/cloak.git
-cd cloak
+git clone https://github.com/solankiharsh/invisible-ai-assistant.git
+cd invisible-ai-assistant
 
 # Install dependencies
 npm install
@@ -455,7 +456,7 @@ We keep contributions focused so Cloak stays lean and reliable.
 - ✅ We currently accept bug-fix pull requests and improvements to existing functionality.
 - ❌ We are not accepting feature requests, new AI/STT providers, or large UI overhauls via PR.
 
-> 💡 **Like this project?** Consider [buying me a coffee ☕](https://buymeacoffee.com/hvsolanki2l) or [hiring me](mailto:hvsolanki27@gmail.com?subject=Hiring%20Inquiry%20-%20Cloak%20Developer) for your   next project!
+> 💡 **Like this project?** Consider [buying me a coffee ☕](https://buymeacoffee.com/hvsolanki2l) or [hiring me](mailto:hvsolanki27@gmail.com?subject=Hiring%20Inquiry%20-%20Cloak%20Developer) for your next project!
 
 ### **Contributing Guidelines**
 
@@ -497,6 +498,6 @@ This project is licensed under the **GNU General Public License v3.0** - see the
 
 ---
 
-**Made with ❤️ by [Harsh Solanki](https://www.solankiharsh.com/)**
+**Made with ❤️ by [Harsh Solanki](https://www.solharsh.com/)**
 
 _Experience the power of Cluely, but with complete transparency and control over your data._

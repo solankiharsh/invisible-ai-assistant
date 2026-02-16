@@ -149,7 +149,7 @@ export const Warning = ({ isVadMode }: WarningProps) => {
               <p>
                 <strong>1. macOS Permissions:</strong> Go to System Settings &gt;
                 Privacy &amp; Security &gt; <strong>Screen Recording</strong>.
-                Ensure Pluely is enabled. System audio capture requires this
+                Ensure Cloak is enabled. System audio capture requires this
                 permission.
               </p>
               <p>

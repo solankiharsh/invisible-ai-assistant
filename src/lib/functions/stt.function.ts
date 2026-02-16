@@ -8,10 +8,10 @@ import { invoke } from "@tauri-apps/api/core";
 
 import { TYPE_PROVIDER } from "@/types";
 import curl2Json from "@bany/curl-to-json";
-import { shouldUsePluelyAPI } from "./pluely.api";
+import { shouldUseCloakAPI } from "./cloak.api";
 
-// Pluely STT function
-async function fetchPluelySTT(audio: File | Blob): Promise<string> {
+// Cloak STT function
+async function fetchCloakSTT(audio: File | Blob): Promise<string> {
   try {
     // Convert audio to base64
     const audioBase64 = await blobToBase64(audio);
@@ -32,7 +32,7 @@ async function fetchPluelySTT(audio: File | Blob): Promise<string> {
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return `Pluely STT Error: ${errorMessage}`;
+    return `Cloak STT Error: ${errorMessage}`;
   }
 }
 
@@ -61,10 +61,10 @@ export async function fetchSTT(params: STTParams): Promise<string> {
       provider = SPEECH_TO_TEXT_PROVIDERS.find(p => p.id === "openai-whisper");
     }
 
-    // Check if we should use Pluely API instead
-    const usePluelyAPI = await shouldUsePluelyAPI();
-    if (usePluelyAPI) {
-      return await fetchPluelySTT(audio);
+    // Check if we should use Cloak API instead
+    const useCloakAPI = await shouldUseCloakAPI();
+    if (useCloakAPI) {
+      return await fetchCloakSTT(audio);
     }
 
     if (!provider) throw new Error("Speech-to-Text Provider configuration missing");

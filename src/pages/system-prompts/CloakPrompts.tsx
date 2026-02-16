@@ -21,15 +21,16 @@ import { safeLocalStorage } from "@/lib";
 import { STORAGE_KEYS } from "@/config";
 import moment from "moment";
 
-interface PluelyPrompt {
+interface CloakPrompt {
   title: string;
   prompt: string;
   modelId: string;
   modelName: string;
 }
 
-interface PluelyPromptsResponse {
-  prompts: PluelyPrompt[];
+/** Response shape from fetch_prompts (backend may still use CloakPromptsResponse) */
+interface CloakPromptsResponse {
+  prompts: CloakPrompt[];
   total: number;
   last_updated?: string;
 }
@@ -44,25 +45,25 @@ interface Model {
   isAvailable: boolean;
 }
 
-const SELECTED_PLUELY_MODEL_STORAGE_KEY = "selected_pluely_model";
-const SELECTED_PLUELY_PROMPT_STORAGE_KEY = "selected_pluely_prompt";
+const SELECTED_CLOAK_MODEL_STORAGE_KEY = "selected_cloak_model";
+const SELECTED_CLOAK_PROMPT_STORAGE_KEY = "selected_cloak_prompt";
 
-export const PluelyPrompts = () => {
+export const CloakPrompts = () => {
   const {
     setSystemPrompt,
     hasActiveLicense,
     setSupportsImages,
-    pluelyApiEnabled,
+    cloakApiEnabled,
   } = useApp();
-  const [prompts, setPrompts] = useState<PluelyPrompt[]>([]);
+  const [prompts, setPrompts] = useState<CloakPrompt[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const [selectedPluelyPrompt, setSelectedPluelyPrompt] =
-    useState<PluelyPrompt | null>(() => {
+  const [selectedCloakPrompt, setSelectedCloakPrompt] =
+    useState<CloakPrompt | null>(() => {
       // Load selected prompt from local storage on initial render
       const stored = safeLocalStorage.getItem(
-        SELECTED_PLUELY_PROMPT_STORAGE_KEY
+        SELECTED_CLOAK_PROMPT_STORAGE_KEY
       );
       if (stored) {
         try {
@@ -79,20 +80,19 @@ export const PluelyPrompts = () => {
   useEffect(() => {
     if (!fetchInitiated.current) {
       fetchInitiated.current = true;
-      fetchPluelyPrompts();
+      fetchCloakPrompts();
       fetchModels();
     }
   }, []);
 
-  // Watch for changes in user's selected prompt and clear Pluely selection if needed
+  // Watch for changes in user's selected prompt and clear Cloak selection if needed
   useEffect(() => {
     const checkUserPromptSelection = () => {
       const userSelectedPromptId = safeLocalStorage.getItem(
         STORAGE_KEYS.SELECTED_SYSTEM_PROMPT_ID
       );
-      // If user has selected one of their own prompts, clear Pluely prompt selection
       if (userSelectedPromptId) {
-        setSelectedPluelyPrompt(null);
+        setSelectedCloakPrompt(null);
       }
     };
 
@@ -110,19 +110,19 @@ export const PluelyPrompts = () => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  const fetchPluelyPrompts = async () => {
+  const fetchCloakPrompts = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await invoke<PluelyPromptsResponse>("fetch_prompts");
+      const response = await invoke<CloakPromptsResponse>("fetch_prompts");
       setPrompts(response.prompts);
       if (response.last_updated) {
         setLastUpdated(response.last_updated);
       }
     } catch (err) {
-      console.error("Failed to fetch Pluely prompts:", err);
+      console.error("Failed to fetch Cloak prompts:", err);
       setError(
-        typeof err === "string" ? err : "Failed to fetch Pluely prompts"
+        typeof err === "string" ? err : "Failed to fetch Cloak prompts"
       );
     } finally {
       setIsLoading(false);
@@ -138,38 +138,28 @@ export const PluelyPrompts = () => {
     }
   };
 
-  const handleSelectPluelyPrompt = async (prompt: PluelyPrompt) => {
-    // Check if user has active license
+  const handleSelectCloakPrompt = async (prompt: CloakPrompt) => {
     if (!hasActiveLicense) {
       return;
     }
 
     try {
-      // Set the system prompt
       setSystemPrompt(prompt.prompt);
-      setSelectedPluelyPrompt(prompt);
+      setSelectedCloakPrompt(prompt);
 
-      // Clear the user's selected prompt ID from local storage
-      // This ensures the user prompt cards don't show as selected
       safeLocalStorage.removeItem(STORAGE_KEYS.SELECTED_SYSTEM_PROMPT_ID);
-
-      // Save the system prompt to local storage
       safeLocalStorage.setItem(STORAGE_KEYS.SYSTEM_PROMPT, prompt.prompt);
-
-      // Save the selected Pluely prompt to local storage for persistence
       safeLocalStorage.setItem(
-        SELECTED_PLUELY_PROMPT_STORAGE_KEY,
+        SELECTED_CLOAK_PROMPT_STORAGE_KEY,
         JSON.stringify(prompt)
       );
 
-      // Find the model by modelId and select it
       const matchingModel = models.find(
         (model) => model.model === prompt.modelId || model.id === prompt.modelId
       );
 
       if (matchingModel) {
-        // Update supportsImages based on model modality
-        if (pluelyApiEnabled) {
+        if (cloakApiEnabled) {
           const hasImageSupport =
             matchingModel.modality?.includes("image") ?? false;
           setSupportsImages(hasImageSupport);
@@ -178,25 +168,25 @@ export const PluelyPrompts = () => {
         await invoke("secure_storage_save", {
           items: [
             {
-              key: SELECTED_PLUELY_MODEL_STORAGE_KEY,
+              key: SELECTED_CLOAK_MODEL_STORAGE_KEY,
               value: JSON.stringify(matchingModel),
             },
           ],
         });
       }
     } catch (error) {
-      console.error("Failed to select Pluely prompt:", error);
+      console.error("Failed to select Cloak prompt:", error);
     }
   };
 
-  const handleCardClick = (prompt: PluelyPrompt) => {
-    handleSelectPluelyPrompt(prompt);
+  const handleCardClick = (prompt: CloakPrompt) => {
+    handleSelectCloakPrompt(prompt);
   };
 
-  const isPromptSelected = (prompt: PluelyPrompt) => {
+  const isPromptSelected = (prompt: CloakPrompt) => {
     return (
-      selectedPluelyPrompt?.title === prompt.title &&
-      selectedPluelyPrompt?.modelId === prompt.modelId
+      selectedCloakPrompt?.title === prompt.title &&
+      selectedCloakPrompt?.modelId === prompt.modelId
     );
   };
 
@@ -204,14 +194,14 @@ export const PluelyPrompts = () => {
     return (
       <div className="space-y-4 mt-6">
         <Header
-          title="Pluely Default Prompts"
+          title="Cloak Default Prompts"
           description="Pre-configured prompts with optimal model selection"
         />
         <Empty
           isLoading={true}
           icon={Sparkles}
           title="Loading prompts..."
-          description="Fetching Pluely default prompts"
+          description="Fetching Cloak default prompts"
         />
       </div>
     );
@@ -221,7 +211,7 @@ export const PluelyPrompts = () => {
     return (
       <div className="space-y-4 mt-6">
         <Header
-          title="Pluely Default Prompts"
+          title="Cloak Default Prompts"
           description="Pre-configured prompts with optimal model selection"
         />
         <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3">
@@ -241,7 +231,7 @@ export const PluelyPrompts = () => {
         <div className="flex items-start gap-3 w-full">
           <div className="flex flex-col gap-1 w-full">
             <Header
-              title="Pluely Default Prompts"
+              title="Cloak Default Prompts"
               description="Pre-configured prompts with optimal model pairings. Selecting a prompt will automatically set the recommended AI model for best results."
             />
             {lastUpdated && (
@@ -262,7 +252,7 @@ export const PluelyPrompts = () => {
           !hasActiveLicense ? "opacity-60" : ""
         }`}
       >
-        {prompts.map((prompt, index) => {
+        {prompts.map((prompt: CloakPrompt, index: number) => {
           const isSelected = isPromptSelected(prompt);
           return (
             <Card
