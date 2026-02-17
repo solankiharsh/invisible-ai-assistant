@@ -24,6 +24,27 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const root = join(__dirname, "..");
 const bundleDir = join(root, "src-tauri", "target", "release", "bundle");
 
+/** Load .env from repo root into process.env (so make upload-supabase works without sourcing). */
+function loadEnv(dir) {
+	const envPath = join(dir, ".env");
+	try {
+		const raw = readFileSync(envPath, "utf8");
+		for (const line of raw.split("\n")) {
+			const trimmed = line.trim();
+			if (!trimmed || trimmed.startsWith("#")) continue;
+			const eq = trimmed.indexOf("=");
+			if (eq <= 0) continue;
+			const key = trimmed.slice(0, eq).trim();
+			let val = trimmed.slice(eq + 1).trim();
+			if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'")))
+				val = val.slice(1, -1);
+			process.env[key] = val;
+		}
+	} catch {
+		// .env missing or unreadable; rely on existing env
+	}
+}
+
 const REQUIRED_EXT = [".dmg", ".msi", ".exe", ".deb", ".rpm", ".AppImage"];
 const version =
 	process.env.CLOAK_VERSION ||
@@ -45,8 +66,12 @@ function findArtifacts(dir, base = dir) {
 }
 
 async function main() {
-	const url = process.env.SUPABASE_URL;
-	const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+	loadEnv(root);
+	const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+	const key =
+		process.env.SUPABASE_SERVICE_ROLE_KEY ||
+		process.env.SUPABASE_ANON_KEY ||
+		process.env.VITE_SUPABASE_ANON_KEY;
 
 	if (!url || !key) {
 		console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_ANON_KEY).");

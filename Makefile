@@ -99,14 +99,14 @@ build-macos-arm64: check-prereqs ## Build macOS Apple Silicon (M1/M2/M3) DMG onl
 	@[ "$$(uname)" = "Darwin" ] || (echo "$(RED)✗ build-macos-arm64 must be run on macOS$(NC)" && exit 1)
 	@echo "$(BLUE)Building Cloak for Apple Silicon (aarch64)...$(NC)"
 	@cd src-tauri && rustup target add aarch64-apple-darwin 2>/dev/null || true
-	@npm run tauri build -- --target aarch64-apple-darwin
+	@env -u CI npm run tauri build -- --target aarch64-apple-darwin
 	@echo "$(GREEN)✓ Apple Silicon DMG: src-tauri/target/release/bundle/dmg/$(NC)"
 
 build-macos-x64: check-prereqs ## Build macOS Intel (x86_64) DMG only
 	@[ "$$(uname)" = "Darwin" ] || (echo "$(RED)✗ build-macos-x64 must be run on macOS$(NC)" && exit 1)
 	@echo "$(BLUE)Building Cloak for Intel Mac (x86_64)...$(NC)"
 	@cd src-tauri && rustup target add x86_64-apple-darwin 2>/dev/null || true
-	@npm run tauri build -- --target x86_64-apple-darwin
+	@env -u CI npm run tauri build -- --target x86_64-apple-darwin
 	@echo "$(GREEN)✓ Intel DMG: src-tauri/target/release/bundle/dmg/$(NC)"
 
 build-macos-all: build-macos-arm64 build-macos-x64 ## Build both macOS DMGs (Apple Silicon + Intel)
@@ -161,7 +161,7 @@ reset-db: ## Remove local dev database (fixes "migration was previously applied 
 		"$${HOME}/Library/Application Support/com.solankiharsh.cloak/cloak.db-shm" 2>/dev/null || true
 	@echo "$(GREEN)✓ Dev database removed. Run 'make dev' to start fresh.$(NC)"
 
-upload-supabase: check-node ## Upload bundle artifacts to Supabase Storage (set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_BUCKET)
+upload-supabase: check-node ## Upload bundle artifacts to Supabase Storage (set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_BUCKET in .env)
 	@node scripts/upload-cloak-to-supabase.mjs
 
 info: ## Show project information and versions
