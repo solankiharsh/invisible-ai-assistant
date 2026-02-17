@@ -154,3 +154,4 @@ info: ## Show project information and versions
 	@echo "  Frontend: React + TypeScript + Vite"
 	@echo "  Backend: Rust + Tauri v2"
 	@echo "  Database: SQLite"
+

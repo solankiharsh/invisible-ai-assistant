@@ -17,6 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components";
+import { CloakModel } from "@/types";
 
 interface ActivationResponse {
   activated: boolean;
@@ -34,16 +35,6 @@ interface StorageResult {
   license_key?: string;
   instance_id?: string;
   selected_cloak_model?: string;
-}
-
-interface Model {
-  provider: string;
-  name: string;
-  id: string;
-  model: string;
-  description: string;
-  modality: string;
-  isAvailable: boolean;
 }
 
 const LICENSE_KEY_STORAGE_KEY = "cloak_license_key";
@@ -66,9 +57,9 @@ export const CloakApiSetup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [models, setModels] = useState<Model[]>([]);
+  const [models, setModels] = useState<CloakModel[]>([]);
   const [isModelsLoading, setIsModelsLoading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState<Model | null>(null);
+  const [selectedModel, setSelectedModel] = useState<CloakModel | null>(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const fetchInitiated = useRef(false);
@@ -93,7 +84,7 @@ export const CloakApiSetup = () => {
   const fetchModels = async () => {
     setIsModelsLoading(true);
     try {
-      const fetchedModels = await invoke<Model[]>("fetch_models");
+      const fetchedModels = await invoke<CloakModel[]>("fetch_models");
       setModels(fetchedModels);
     } catch (error) {
       console.error("Failed to fetch models:", error);
@@ -226,7 +217,7 @@ export const CloakApiSetup = () => {
     }
   };
 
-  const handleModelSelect = async (model: Model) => {
+  const handleModelSelect = async (model: CloakModel) => {
     setSelectedModel(model);
     setIsPopoverOpen(false); // Close popover when model is selected
     setSearchValue(""); // Reset search when model is selected

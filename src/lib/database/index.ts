@@ -1,3 +1,5 @@
 export * from "./config";
 export * from "./system-prompt.action";
 export * from "./chat-history.action";
+export * from "./knowledge.action";
+export * from "./meetings.action";

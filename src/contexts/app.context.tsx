@@ -1,5 +1,6 @@
 import {
   AI_PROVIDERS,
+  DEFAULT_SCREENSHOT_AUTO_PROMPT,
   DEFAULT_SYSTEM_PROMPT,
   SPEECH_TO_TEXT_PROVIDERS,
   STORAGE_KEYS,
@@ -123,7 +124,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [screenshotConfiguration, setScreenshotConfiguration] =
     useState<ScreenshotConfig>({
       mode: "manual",
-      autoPrompt: "CRITICAL: DO NOT DESCRIBE THE IMAGE. DO NOT MENTION THE UI, WINDOWS, OR TABS. ACT AS AN EXPERT COMPETITIVE PROGRAMMER. IDENTIFY THE CODING PROBLEM OR BUG SHOWN AND PROVIDE THE COMPLETE, OPTIMIZED CODE SOLUTION OR FIX IMMEDIATELY. START YOUR RESPONSE WITH THE CODE BLOCK.",
+      autoPrompt: DEFAULT_SCREENSHOT_AUTO_PROMPT,
       enabled: true,
     });
 
@@ -154,7 +155,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setHasActiveLicense(response.is_active);
 
     if (response?.is_dev_license) {
-      // Dev mode: unlock everything (await so image-support logic and loadData run)
+      // Dev mode: unlock everything (await so image-support logic and loadData run before setting the state)
       await setCloakApiEnabled(true);
       setSupportsImages(true);
     }
@@ -209,9 +210,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         if (typeof parsed === "object" && parsed !== null) {
           setScreenshotConfiguration({
             mode: parsed.mode || "manual",
-            autoPrompt:
-              parsed.autoPrompt ||
-              "CRITICAL: DO NOT DESCRIBE THE IMAGE. DO NOT MENTION THE UI, WINDOWS, OR TABS. ACT AS AN EXPERT COMPETITIVE PROGRAMMER. IDENTIFY THE CODING PROBLEM OR BUG SHOWN AND PROVIDE THE COMPLETE, OPTIMIZED CODE SOLUTION OR FIX IMMEDIATELY. START YOUR RESPONSE WITH THE CODE BLOCK.",
+            autoPrompt: parsed.autoPrompt || DEFAULT_SCREENSHOT_AUTO_PROMPT,
             enabled: parsed.enabled !== undefined ? parsed.enabled : true,
           });
         }
@@ -419,6 +418,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const unlistenShow = listen("handle-app-icon-on-show", async () => {
       // Always show app icon when window is shown, regardless of user setting
       await handleAppIconVisibility(true);
+      // Re-sync from localStorage when overlay is shown (e.g. after enabling Cloak in dashboard)
+      loadData();
     });
 
     return () => {
@@ -427,12 +428,44 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
+  // When overlay/dashboard window gains focus, re-sync from localStorage so model selector and Cloak state stay consistent across windows
+  useEffect(() => {
+    const handleFocus = () => {
+      loadData();
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, []);
+
+  // In overlay window only: poll localStorage for CLOAK_API_ENABLED so model selector appears without requiring focus/show events
+  useEffect(() => {
+    let isOverlay = false;
+    try {
+      isOverlay = getCurrentWindow().label !== "dashboard";
+    } catch {
+      // assume dashboard if we can't get label
+    }
+    if (!isOverlay) return;
+    const interval = setInterval(() => {
+      const raw = safeLocalStorage.getItem(STORAGE_KEYS.CLOAK_API_ENABLED);
+      if (raw === "true") {
+        setCloakApiEnabledState(true);
+      }
+    }, 1500);
+    return () => clearInterval(interval);
+  }, []);
+
   // Listen to storage events for real-time sync (e.g., multi-tab)
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       // Sync supportsImages across windows
       if (e.key === STORAGE_KEYS.SUPPORTS_IMAGES && e.newValue !== null) {
         setSupportsImagesState(e.newValue === "true");
+      }
+
+      // Sync cloakApiEnabled across windows (overlay <-> dashboard)
+      if (e.key === STORAGE_KEYS.CLOAK_API_ENABLED && e.newValue !== null) {
+        setCloakApiEnabledState(e.newValue === "true");
       }
 
       if (

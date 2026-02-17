@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { DeleteSystemPrompt } from "./Delete";
 import { CreateEditDialog } from "./CreateEditDialog";
+import { PrebuiltPrompts } from "./PrebuiltPrompts";
 import { CloakPrompts } from "./CloakPrompts";
 import { useState } from "react";
 import { PageLayout } from "@/layouts";
@@ -293,6 +294,9 @@ const SystemPrompts = () => {
         promptName={form.name}
         onDelete={handleDeleteConfirm}
       />
+
+      {/* Prebuilt Templates */}
+      <PrebuiltPrompts />
 
       {/* Cloak Default Prompts */}
       <CloakPrompts />

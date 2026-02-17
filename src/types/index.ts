@@ -6,3 +6,6 @@ export * from "./settings.hook";
 export * from "./completion";
 export * from "./system-prompts";
 export * from "./shortcuts";
+export * from "./cloak-model.type";
+export * from "./knowledge.type";
+export * from "./meetings";

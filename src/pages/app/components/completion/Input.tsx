@@ -49,7 +49,7 @@ export const Input = ({
           <div className="relative select-none">
             <InputComponent
               ref={inputRef}
-              placeholder="Ask me anything..."
+              placeholder="What can I help with? I'm under the cloak."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
