@@ -17,5 +17,19 @@ pub fn migrations() -> Vec<Migration> {
             sql: include_str!("migrations/chat-history.sql"),
             kind: MigrationKind::Up,
         },
+        // Migration 3: Knowledge system (items, embeddings, tags, projects, pages, FTS)
+        Migration {
+            version: 3,
+            description: "create_knowledge_tables",
+            sql: include_str!("migrations/knowledge.sql"),
+            kind: MigrationKind::Up,
+        },
+        // Migration 4: Meetings (call summaries, transcripts, notes)
+        Migration {
+            version: 4,
+            description: "create_meetings_table",
+            sql: include_str!("migrations/meetings.sql"),
+            kind: MigrationKind::Up,
+        },
     ]
 }

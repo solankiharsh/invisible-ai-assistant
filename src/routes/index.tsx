@@ -11,6 +11,14 @@ import {
   Screenshot,
   Chats,
   Responses,
+  Knowledge,
+  KnowledgeChatPage,
+  PagesListPage,
+  PageEditorPage,
+  ProjectsListPage,
+  ProjectViewPage,
+  Meetings,
+  MeetingView,
 } from "@/pages";
 import { DashboardLayout } from "@/layouts";
 
@@ -29,6 +37,14 @@ export default function AppRoutes() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/audio" element={<Audio />} />
           <Route path="/responses" element={<Responses />} />
+          <Route path="/knowledge" element={<Knowledge />} />
+          <Route path="/knowledge/chat" element={<KnowledgeChatPage />} />
+          <Route path="/knowledge/pages" element={<PagesListPage />} />
+          <Route path="/knowledge/pages/:id" element={<PageEditorPage />} />
+          <Route path="/knowledge/projects" element={<ProjectsListPage />} />
+          <Route path="/knowledge/projects/:id" element={<ProjectViewPage />} />
+          <Route path="/meetings" element={<Meetings />} />
+          <Route path="/meetings/:id" element={<MeetingView />} />
           <Route path="/dev-space" element={<DevSpace />} />
         </Route>
       </Routes>

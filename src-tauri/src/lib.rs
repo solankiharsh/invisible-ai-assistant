@@ -3,6 +3,7 @@ mod activate;
 mod api;
 mod capture;
 mod db;
+mod google_oauth;
 mod shortcuts;
 mod window;
 use std::sync::{Arc, Mutex};
@@ -106,6 +107,7 @@ pub fn run() {
             api::check_license_status,
             api::get_activity,
             api::get_env_config,
+            api::generate_embedding,
             speaker::start_system_audio_capture,
             speaker::stop_system_audio_capture,
             speaker::manual_stop_continuous,
@@ -117,6 +119,7 @@ pub fn run() {
             speaker::get_audio_sample_rate,
             speaker::get_input_devices,
             speaker::get_output_devices,
+            google_oauth::google_oauth_start,
         ])
         .setup(|app| {
             // Setup main window positioning

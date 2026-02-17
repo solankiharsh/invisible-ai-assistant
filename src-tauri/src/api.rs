@@ -1617,3 +1617,85 @@ pub async fn get_activity(app: AppHandle) -> Result<serde_json::Value, String> {
         .await
         .map_err(|e| format!("Failed to parse activity response: {}", e))
 }
+
+// --- Knowledge / Embeddings API ---
+
+#[derive(Debug, Serialize, Deserialize)]
+struct EmbeddingRequest {
+    text: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct EmbeddingResponse {
+    embedding: Vec<f64>,
+}
+
+/// Generate embedding vector for text via Cloak API. Used for semantic search.
+#[tauri::command]
+pub async fn generate_embedding(app: AppHandle, text: String) -> Result<Vec<f64>, String> {
+    if text.trim().is_empty() {
+        return Err("Text cannot be empty".to_string());
+    }
+
+    if is_dev_mode() {
+        // Dev: return a dummy 384-dim vector so frontend can still run (e.g. cosine sim with zeros).
+        return Ok(vec![0.0; 384]);
+    }
+
+    let app_endpoint = get_app_endpoint()?;
+    let api_access_key = get_api_access_key()?;
+    let (license_key, instance_id) = match get_stored_credentials(&app).await {
+        Ok((lk, id, _)) => (lk, id),
+        Err(_) => {
+            return Err("No license. Activate Cloak to use embeddings.".to_string());
+        }
+    };
+    let machine_id = app
+        .machine_uid()
+        .get_machine_uid()
+        .ok()
+        .and_then(|uid| uid.id)
+        .unwrap_or_else(|| "".to_string());
+    let app_version = app.package_info().version.to_string();
+
+    let client = reqwest::Client::new();
+    let url = format!("{}/api/embeddings", app_endpoint.trim_end_matches('/'));
+
+    let body = EmbeddingRequest {
+        text: text.trim().to_string(),
+    };
+
+    let response = client
+        .post(&url)
+        .header("Content-Type", "application/json")
+        .header("Authorization", format!("Bearer {}", api_access_key))
+        .header("license_key", &license_key)
+        .header("instance", &instance_id)
+        .header("machine_id", &machine_id)
+        .header("app_version", &app_version)
+        .json(&body)
+        .send()
+        .await
+        .map_err(|e| format!("Embedding request failed: {}", e))?;
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let error_text = response
+            .text()
+            .await
+            .unwrap_or_else(|_| "Unknown error".to_string());
+        if let Ok(err_json) = serde_json::from_str::<serde_json::Value>(&error_text) {
+            if let Some(msg) = err_json.get("error").or(err_json.get("message")).and_then(|v| v.as_str()) {
+                return Err(format!("Embedding API ({}): {}", status, msg));
+            }
+        }
+        return Err(format!("Embedding API ({}): {}", status, error_text));
+    }
+
+    let emb: EmbeddingResponse = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse embedding response: {}", e))?;
+
+    Ok(emb.embedding)
+}

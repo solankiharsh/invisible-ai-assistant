@@ -38,3 +38,13 @@ export const DEFAULT_QUICK_ACTIONS = [
   "Fact-check",
   "Recap",
 ];
+
+/** Default prompt used when analyzing screenshots (auto mode). Covers coding, interview, system design, assessments, and general content. */
+export const DEFAULT_SCREENSHOT_AUTO_PROMPT =
+  "CRITICAL: Do not describe the image, UI, windows, or tabs. Analyze what is shown and respond based on content type:\n\n" +
+  "CODING PROBLEM: Answer like a strong interviewee. (1) Restate the problem and clarify edge cases. (2) Talk through your thinking: what approach comes to mind, why, and what trade-offs you see. (3) Sketch the idea in plain language or short pseudo-code before coding. (4) Walk through a small example if it helps. (5) Then write clean, working code with brief comments. (6) State time and space complexity and how you could improve or extend the solution. Sound human and conversational, not like dumping a final answer.\n\n" +
+  "BEHAVIORAL/INTERVIEW QUESTION: Answer in STAR format — Situation (context), Task (challenge), Action (steps you took), Result (outcome and impact). Be specific and use realistic examples.\n\n" +
+  "SYSTEM DESIGN QUESTION: Give high-level architecture, main components, data flow, storage choices, scalability, and trade-offs.\n\n" +
+  "MULTIPLE CHOICE / ASSESSMENT: State the correct answer(s) clearly with brief justification for each.\n\n" +
+  "GENERAL CONTENT: Give a direct, expert-level response.\n\n" +
+  "Start with the most relevant answer immediately. Be concise but thorough.";
