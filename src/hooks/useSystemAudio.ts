@@ -64,7 +64,15 @@ export interface ChatConversation {
 
 export type useSystemAudioType = ReturnType<typeof useSystemAudio>;
 
-export function useSystemAudio() {
+export interface UseSystemAudioOptions {
+  /** Called when system audio capture stops. Receives transcript (user speech only) and duration in seconds. Use to auto-save as a meeting. */
+  onCaptureStopped?: (
+    transcript: string,
+    durationSeconds?: number
+  ) => void | Promise<void>;
+}
+
+export function useSystemAudio(options?: UseSystemAudioOptions) {
   const { resizeWindow } = useWindowResize();
   const globalShortcuts = useGlobalShortcuts();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -93,6 +101,11 @@ export function useSystemAudio() {
     createdAt: 0,
     updatedAt: 0,
   });
+
+  // Refs so stopCapture can read latest state and session start time
+  const conversationRef = useRef(conversation);
+  const captureStartedAtRef = useRef<number>(0);
+  conversationRef.current = conversation;
 
   // Context management states
   const [useSystemPrompt, setUseSystemPrompt] = useState<boolean>(true);
@@ -568,6 +581,7 @@ export function useSystemAudio() {
         updatedAt: 0,
       });
 
+      captureStartedAtRef.current = Date.now();
       setCapturing(true);
       setIsPopoverOpen(true);
       setIsContinuousMode(isContinuous);
@@ -608,8 +622,31 @@ export function useSystemAudio() {
         abortControllerRef.current = null;
       }
 
+      // Build transcript from user messages only (actual speech), not AI responses
+      const conv = conversationRef.current;
+      const userMessages = conv.messages.filter((m) => m.role === "user");
+      const transcript = userMessages
+        .map((m) => m.content.trim())
+        .filter(Boolean)
+        .join("\n\n");
+      const durationSeconds =
+        captureStartedAtRef.current > 0
+          ? Math.round((Date.now() - captureStartedAtRef.current) / 1000)
+          : undefined;
+
       // Stop the audio capture
       await invoke<string>("stop_system_audio_capture");
+
+      // Notify listener to e.g. create a meeting (before resetting state)
+      if (transcript && options?.onCaptureStopped) {
+        try {
+          await Promise.resolve(
+            options.onCaptureStopped(transcript, durationSeconds)
+          );
+        } catch (cbErr) {
+          console.error("onCaptureStopped error:", cbErr);
+        }
+      }
 
       // Reset ALL states
       setCapturing(false);
@@ -627,7 +664,7 @@ export function useSystemAudio() {
       setError(`Failed to stop capture: ${errorMessage}`);
       console.error("Stop capture error:", err);
     }
-  }, []);
+  }, [options?.onCaptureStopped]);
 
   // Manual stop for continuous recording
   const manualStopAndSend = useCallback(async () => {

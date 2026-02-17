@@ -1,12 +1,29 @@
-import { useEffect, useState } from "react";
-import { useTitles, useSystemAudio } from "@/hooks";
+import { useEffect, useState, useCallback } from "react";
+import { useTitles, useSystemAudio, useMeetings } from "@/hooks";
 import { listen } from "@tauri-apps/api/event";
 import { safeLocalStorage, migrateLocalStorageToSQLite } from "@/lib";
 import { getShortcutsConfig } from "@/lib/storage";
 import { invoke } from "@tauri-apps/api/core";
 
 export const useApp = () => {
-  const systemAudio = useSystemAudio();
+  const { createFromTranscript, generateSummary } = useMeetings();
+  const onCaptureStopped = useCallback(
+    async (transcript: string, durationSeconds?: number) => {
+      const meeting = await createFromTranscript(
+        transcript,
+        undefined,
+        durationSeconds
+      );
+      if (meeting) {
+        await generateSummary(meeting.id);
+        window.dispatchEvent(
+          new CustomEvent("meeting-created", { detail: { id: meeting.id } })
+        );
+      }
+    },
+    [createFromTranscript, generateSummary]
+  );
+  const systemAudio = useSystemAudio({ onCaptureStopped });
   const [isHidden, setIsHidden] = useState(false);
   // Initialize title management
   useTitles();

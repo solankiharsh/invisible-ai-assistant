@@ -1,4 +1,4 @@
-.PHONY: help install dev build clean check-prereqs install-rust check-node check-rust check-xcode fix-xcode format lint test
+.PHONY: help install dev build clean check-prereqs install-rust check-node check-rust check-xcode fix-xcode format lint test reset-db build-macos-arm64 build-macos-x64 build-macos-all upload-supabase
 
 # Default target
 .DEFAULT_GOAL := help
@@ -95,6 +95,22 @@ build: check-prereqs ## Build the application for production
 	)
 	@echo "$(GREEN)✓ Build complete! Check src-tauri/target/release/bundle/ for installers$(NC)"
 
+build-macos-arm64: check-prereqs ## Build macOS Apple Silicon (M1/M2/M3) DMG only
+	@[ "$$(uname)" = "Darwin" ] || (echo "$(RED)✗ build-macos-arm64 must be run on macOS$(NC)" && exit 1)
+	@echo "$(BLUE)Building Cloak for Apple Silicon (aarch64)...$(NC)"
+	@cd src-tauri && rustup target add aarch64-apple-darwin 2>/dev/null || true
+	@npm run tauri build -- --target aarch64-apple-darwin
+	@echo "$(GREEN)✓ Apple Silicon DMG: src-tauri/target/release/bundle/dmg/$(NC)"
+
+build-macos-x64: check-prereqs ## Build macOS Intel (x86_64) DMG only
+	@[ "$$(uname)" = "Darwin" ] || (echo "$(RED)✗ build-macos-x64 must be run on macOS$(NC)" && exit 1)
+	@echo "$(BLUE)Building Cloak for Intel Mac (x86_64)...$(NC)"
+	@cd src-tauri && rustup target add x86_64-apple-darwin 2>/dev/null || true
+	@npm run tauri build -- --target x86_64-apple-darwin
+	@echo "$(GREEN)✓ Intel DMG: src-tauri/target/release/bundle/dmg/$(NC)"
+
+build-macos-all: build-macos-arm64 build-macos-x64 ## Build both macOS DMGs (Apple Silicon + Intel)
+
 build-frontend: check-node ## Build only the frontend
 	@echo "$(BLUE)Building frontend...$(NC)"
 	@npm run build
@@ -137,6 +153,16 @@ update: ## Update dependencies
 	@npm update
 	@cd src-tauri && cargo update
 	@echo "$(GREEN)✓ Dependencies updated$(NC)"
+
+reset-db: ## Remove local dev database (fixes "migration was previously applied but modified" error)
+	@echo "$(BLUE)Removing local Cloak dev database...$(NC)"
+	@rm -f "$${HOME}/Library/Application Support/com.solankiharsh.cloak/cloak.db" \
+		"$${HOME}/Library/Application Support/com.solankiharsh.cloak/cloak.db-wal" \
+		"$${HOME}/Library/Application Support/com.solankiharsh.cloak/cloak.db-shm" 2>/dev/null || true
+	@echo "$(GREEN)✓ Dev database removed. Run 'make dev' to start fresh.$(NC)"
+
+upload-supabase: check-node ## Upload bundle artifacts to Supabase Storage (set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_BUCKET)
+	@node scripts/upload-cloak-to-supabase.mjs
 
 info: ## Show project information and versions
 	@echo "$(BLUE)Project Information:$(NC)"

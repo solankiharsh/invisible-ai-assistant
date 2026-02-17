@@ -198,7 +198,20 @@ const MeetingView = () => {
         <div className="min-h-[400px]">
           {activeTab === "summary" && (
             <div className="space-y-4">
-              {currentMeeting.summary ? (
+              {(generatingSummary ||
+                (currentMeeting.status === "processing" &&
+                  !currentMeeting.summary &&
+                  currentMeeting.transcript)) ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <Loader2 className="h-8 w-8 text-muted-foreground/60 animate-spin mb-3" />
+                  <p className="text-sm text-muted-foreground">
+                    Analyzing transcript and notes
+                  </p>
+                  <p className="text-xs text-muted-foreground/70 mt-1">
+                    Summary will appear here when ready.
+                  </p>
+                </div>
+              ) : currentMeeting.summary ? (
                 <div className="prose prose-sm dark:prose-invert max-w-none [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-2 [&_li]:text-sm [&_li]:leading-relaxed [&_ul]:space-y-1">
                   <Markdown>{currentMeeting.summary}</Markdown>
                 </div>

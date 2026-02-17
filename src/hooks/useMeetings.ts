@@ -58,6 +58,13 @@ export function useMeetings() {
     loadMeetings();
   }, [loadMeetings]);
 
+  // Refresh list when a meeting is created elsewhere (e.g. after system audio capture stops)
+  useEffect(() => {
+    const handler = () => loadMeetings();
+    window.addEventListener("meeting-created", handler);
+    return () => window.removeEventListener("meeting-created", handler);
+  }, [loadMeetings]);
+
   const loadMeeting = useCallback(async (id: string) => {
     try {
       const meeting = await getMeetingById(id);
