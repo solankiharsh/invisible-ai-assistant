@@ -40,8 +40,8 @@ const DEFAULT_VAD_CONFIG: VadConfig = {
   peak_threshold: 0.035, // Higher threshold - filters clicks/noise
   silence_chunks: 45, // ~1.0s of required silence
   min_speech_chunks: 7, // ~0.16s - captures short answers
-  pre_speech_chunks: 12, // ~0.27s - enough to catch word start
-  noise_gate_threshold: 0.003, // Stronger noise filtering
+  pre_speech_chunks: 20, // ~0.43s - captures soft word onsets
+  noise_gate_threshold: 0.001, // Softer gate - preserves quiet speech
   max_recording_duration_secs: 180, // 3 minutes default
 };
 

@@ -115,7 +115,7 @@ export const SettingsPanel = ({
       peak_threshold: 0.035,
       silence_chunks: 45,
       min_speech_chunks: 7,
-      pre_speech_chunks: 12,
+      pre_speech_chunks: 20,
       noise_gate_threshold: 0.003,
       max_recording_duration_secs: 180,
     };

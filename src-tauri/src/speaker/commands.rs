@@ -37,8 +37,8 @@ impl Default for VadConfig {
             peak_threshold: 0.035,  // Higher threshold - filters clicks/noise
             silence_chunks: 45,     // ~1.0s of silence before stopping
             min_speech_chunks: 7,   // ~0.16s - captures short answers
-            pre_speech_chunks: 12,  // ~0.27s - enough to catch word start
-            noise_gate_threshold: 0.003, // Stronger noise filtering
+            pre_speech_chunks: 20,  // ~0.43s - captures soft word onsets
+            noise_gate_threshold: 0.001, // Softer gate - preserves quiet speech
             max_recording_duration_secs: 180, // 3 minutes default
         }
     }
@@ -200,8 +200,9 @@ async fn run_vad_capture(
 
                 // Safety cap: force emit if exceeds 30s
                 if speech_buffer.len() > max_samples {
-                    let normalized_buffer = normalize_audio_level(&speech_buffer, 0.1);
-                    if let Ok(b64) = samples_to_wav_b64(sr, &normalized_buffer) {
+                    let normalized_buffer = normalize_audio_level(&speech_buffer, 0.25);
+                    let resampled = resample_to_16k(&normalized_buffer, sr);
+                    if let Ok(b64) = samples_to_wav_b64(16000, &resampled) {
                         // let duration = speech_buffer.len() as f32 / sr as f32;
                         let _ = app.emit("speech-detected", b64);
                     }
@@ -232,8 +233,9 @@ async fn run_vad_capture(
                             }
 
                             // Emit complete speech segment
-                            let normalized_buffer = normalize_audio_level(&speech_buffer, 0.1);
-                            if let Ok(b64) = samples_to_wav_b64(sr, &normalized_buffer) {
+                            let normalized_buffer = normalize_audio_level(&speech_buffer, 0.25);
+                            let resampled = resample_to_16k(&normalized_buffer, sr);
+                            if let Ok(b64) = samples_to_wav_b64(16000, &resampled) {
                                 // let duration = speech_buffer.len() as f32 / sr as f32;
                                 let _ = app.emit("speech-detected", b64);
                             } else {
@@ -356,9 +358,10 @@ async fn run_continuous_capture(
 
         // Apply noise gate
         let cleaned_audio = apply_noise_gate(&audio_buffer, config.noise_gate_threshold);
-        let cleaned_audio = normalize_audio_level(&cleaned_audio, 0.1);
+        let cleaned_audio = normalize_audio_level(&cleaned_audio, 0.25);
+        let resampled = resample_to_16k(&cleaned_audio, sr);
 
-        match samples_to_wav_b64(sr, &cleaned_audio) {
+        match samples_to_wav_b64(16000, &resampled) {
             Ok(b64) => {
                 let _ = app.emit("speech-detected", b64);
             }
@@ -377,7 +380,7 @@ async fn run_continuous_capture(
 
 // Apply noise gate
 fn apply_noise_gate(samples: &[f32], threshold: f32) -> Vec<f32> {
-    const KNEE_RATIO: f32 = 3.0; // Compression ratio for soft knee
+    const KNEE_RATIO: f32 = 1.5; // Softer knee - less attenuation of quiet speech
 
     samples
         .iter()
@@ -432,6 +435,28 @@ fn normalize_audio_level(samples: &[f32], target_rms: f32) -> Vec<f32> {
             }
         })
         .collect()
+}
+
+/// Resample audio to 16 kHz (Whisper's native rate) using linear interpolation.
+fn resample_to_16k(samples: &[f32], from_sr: u32) -> Vec<f32> {
+    if from_sr == 16000 {
+        return samples.to_vec();
+    }
+    if samples.is_empty() {
+        return Vec::new();
+    }
+    let ratio = from_sr as f64 / 16000.0;
+    let out_len = (samples.len() as f64 / ratio).ceil() as usize;
+    let mut out = Vec::with_capacity(out_len);
+    for i in 0..out_len {
+        let src_idx = i as f64 * ratio;
+        let idx = src_idx as usize;
+        let frac = (src_idx - idx as f64) as f32;
+        let s0 = samples[idx.min(samples.len() - 1)];
+        let s1 = samples[(idx + 1).min(samples.len() - 1)];
+        out.push(s0 + frac * (s1 - s0));
+    }
+    out
 }
 
 // Convert samples to WAV base64 (with proper error handling)

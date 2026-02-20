@@ -105,7 +105,7 @@ export async function fetchSTT(params: STTParams): Promise<string> {
       ...uiVariables,
       // If UI has an empty/placeholder key, fall back to .env
       API_KEY: (uiVariables.API_KEY || envConfig.api_access_key || "").trim(),
-      MODEL: (uiVariables.MODEL === "openai-whisper" ? "whisper-1" : (uiVariables.MODEL || "whisper-1")).trim(),
+      MODEL: (uiVariables.MODEL === "openai-whisper" ? "gpt-4o-mini-transcribe" : (uiVariables.MODEL || "gpt-4o-mini-transcribe")).trim(),
     };
 
     const allVariables = mergedVariables;
